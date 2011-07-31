@@ -291,11 +291,11 @@ THE SOFTWARE.
                     var zoomInPx_height =  (($options.image.height * Math.abs($options.image.startZoom)) / 100);
                     getData('image').h = zoomInPx_height;
                     getData('image').w = zoomInPx_width;
-                    getData('image').posX = Math.abs(($options.width / 2) - (getData('image').w / 2));
-                    getData('image').posY = Math.abs(($options.height / 2) - (getData('image').h/ 2));
+                    getData('image').posX = (($options.width / 2) - (getData('image').w / 2));
+                    getData('image').posY = (($options.height / 2) - (getData('image').h/ 2));
                 }else{
-                    getData('image').posX = 0;//Math.abs(($options.width / 2) - (getData('image').w / 2));
-                    getData('image').posY = 0;//Math.abs(($options.height / 2) - (getData('image').h/ 2));
+                    getData('image').posX = (($options.width / 2) - (getData('image').w / 2));
+                    getData('image').posY = (($options.height / 2) - (getData('image').h/ 2));
                     var scaleX = getData('image').scaleX;
                     var scaleY = getData('image').scaleY;
                     if(scaleY < scaleX){
@@ -333,10 +333,6 @@ THE SOFTWARE.
                         traslacion = " translate(" + getData('image').posX + "," + getData('image').posY + ")"; 
                         rotacion += traslacion;
                         $($image).attr("transform",rotacion);
-                        
-                        /*getData('image').posX = $($image).position().left;
-                        getData('image').posY = $($image).position().top;*/
-                        
                     }
                 });
             };
@@ -372,7 +368,6 @@ THE SOFTWARE.
                     step: (($options.rotationSteps > 360 || $options.rotationSteps < 0) ? 1 : $options.rotationSteps),
                     slide: function(event, ui) {
                         getData('image').rotation = (value == 360 ? Math.abs(360 - ui.value) : Math.abs(ui.value));
-                        
                         calculateTranslationAndRotation(); 
                         if($options.image.onRotate != null)
                             $options.image.onRotate($slider, getData('image').rotation);
