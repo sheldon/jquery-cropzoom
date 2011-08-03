@@ -290,12 +290,22 @@ THE SOFTWARE.
                     var zoomInPx_width =  (($options.image.width * Math.abs($options.image.startZoom)) / 100);
                     var zoomInPx_height =  (($options.image.height * Math.abs($options.image.startZoom)) / 100);
                     getData('image').h = zoomInPx_height;
-                    getData('image').w = zoomInPx_width;
-                    getData('image').posX = (($options.width / 2) - (getData('image').w / 2));
-                    getData('image').posY = (($options.height / 2) - (getData('image').h/ 2));
+                    getData('image').w = zoomInPx_width;	
+		    if(getData('image').h > $options.height)
+			getData('image').posY = Math.abs(($options.height / 2) - (getData('image').h/ 2));
+		    else
+			getData('image').posY = (($options.height / 2) - (getData('image').h/ 2));	
+		    if(getData('image').w > $options.width)
+	                getData('image').posX = Math.abs(($options.width / 2) - (getData('image').w / 2));
+		    else
+			getData('image').posX = (($options.width / 2) - (getData('image').w / 2));
+                    
                 }else{
-                    getData('image').posX = (($options.width / 2) - (getData('image').w / 2));
-                    getData('image').posY = (($options.height / 2) - (getData('image').h/ 2));
+                     
+		getData('image').posY = 0;	
+	   
+			getData('image').posX = 0;
+
                     var scaleX = getData('image').scaleX;
                     var scaleY = getData('image').scaleY;
                     if(scaleY < scaleX){
