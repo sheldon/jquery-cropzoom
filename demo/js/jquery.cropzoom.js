@@ -140,22 +140,9 @@ THE SOFTWARE.
             });
             
 
-            if(!$.browser.msie){
-                $svg = _self[0].ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                $svg.setAttribute('id', 'k');
-                $svg.setAttribute('width', $options.width);
-                $svg.setAttribute('height', $options.height);
-                $svg.setAttribute('preserveAspectRatio', 'none');
-                $image = _self[0].ownerDocument.createElementNS('http://www.w3.org/2000/svg','image');
-                $image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', $options.image.source);
-                $image.setAttribute('width', getData('image').w);
-                $image.setAttribute('height', getData('image').h);
-                $image.setAttribute('preserveAspectRatio', 'none');
-                $($image).attr('x', 0);
-                $($image).attr('y', 0);
-                $svg.appendChild($image);
-            }else{
-                // Add VML includes and namespace
+            if($.browser.msie && parseInt($.browser.version) < 9){
+
+		// Add VML includes and namespace
                 _self[0].ownerDocument.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML");
                 // Add required css rules
                 var style = document.createStyleSheet();
@@ -186,6 +173,22 @@ THE SOFTWARE.
                 if(ext == 'png' || ext == 'gif')
                     $image.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+$options.image.source+"',sizingMethod='scale');"; 
                 $svg.append($image);   
+
+                
+            }else{
+                $svg = _self[0].ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                $svg.setAttribute('id', 'k');
+                $svg.setAttribute('width', $options.width);
+                $svg.setAttribute('height', $options.height);
+                $svg.setAttribute('preserveAspectRatio', 'none');
+                $image = _self[0].ownerDocument.createElementNS('http://www.w3.org/2000/svg','image');
+                $image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', $options.image.source);
+                $image.setAttribute('width', getData('image').w);
+                $image.setAttribute('height', getData('image').h);
+                $image.setAttribute('preserveAspectRatio', 'none');
+                $($image).attr('x', 0);
+                $($image).attr('y', 0);
+                $svg.appendChild($image);
             }
             //$($image).data('container_id', _self[0].id);
             _self.append($svg);  
@@ -290,12 +293,22 @@ THE SOFTWARE.
                     var zoomInPx_width =  (($options.image.width * Math.abs($options.image.startZoom)) / 100);
                     var zoomInPx_height =  (($options.image.height * Math.abs($options.image.startZoom)) / 100);
                     getData('image').h = zoomInPx_height;
-                    getData('image').w = zoomInPx_width;
-                    getData('image').posX = (($options.width / 2) - (getData('image').w / 2));
-                    getData('image').posY = (($options.height / 2) - (getData('image').h/ 2));
+                    getData('image').w = zoomInPx_width;	
+		    if(getData('image').h > $options.height)
+			getData('image').posY = Math.abs(($options.height / 2) - (getData('image').h/ 2));
+		    else
+			getData('image').posY = (($options.height / 2) - (getData('image').h/ 2));	
+		    if(getData('image').w > $options.width)
+	                getData('image').posX = Math.abs(($options.width / 2) - (getData('image').w / 2));
+		    else
+			getData('image').posX = (($options.width / 2) - (getData('image').w / 2));
+                    
                 }else{
-                    getData('image').posX = (($options.width / 2) - (getData('image').w / 2));
-                    getData('image').posY = (($options.height / 2) - (getData('image').h/ 2));
+                     
+		getData('image').posY = 0;	
+	   
+			getData('image').posX = 0;
+
                     var scaleX = getData('image').scaleX;
                     var scaleY = getData('image').scaleY;
                     if(scaleY < scaleX){
@@ -320,7 +333,7 @@ THE SOFTWARE.
                 var traslacion = "";
                 $(function(){
                     // console.log(imageData.id);
-                    if($.browser.msie){
+                    if($.browser.msie && parseInt($.browser.version) < 9){
                         rotacion = getData('image').rotation;
                         $($image).css({
                             'rotation': rotacion,
@@ -329,10 +342,19 @@ THE SOFTWARE.
                         });
                     }else{
                         
-                        rotacion = "rotate(" + getData('image').rotation + "," + (getData('image').posX + (getData('image').w / 2 )) + "," + (getData('image').posY + (getData('image').h / 2))  + ")";    
-                        traslacion = " translate(" + getData('image').posX + "," + getData('image').posY + ")"; 
-                        rotacion += traslacion;
-                        $($image).attr("transform",rotacion);
+                        rotacion = "rotate(" + getData('image').rotation + "," + (getData('image').posX + (getData('image').w / 2 )) + "," + (getData('image').posY + (getData('image').h / 2))  + ")";
+			if($.browser.mise){
+			 $($image).attr("transform",rotacion);
+			 $($image).css({
+                            'top': getData('image').posY,
+                            'left':getData('image').posX
+                         });			
+			}else{
+			 traslacion = " translate(" + getData('image').posX + "," + getData('image').posY + ")"; 
+                         rotacion += traslacion;
+                         $($image).attr("transform",rotacion);  
+			}    
+                        
                     }
                 });
             };
@@ -423,14 +445,15 @@ THE SOFTWARE.
 			var value = ($options.expose.slidersOrientation == 'vertical' ? ($options.image.maxZoom - ui.value) : ui.value);
                         var zoomInPx_width =  ($options.image.width * Math.abs(value) / 100);
                         var zoomInPx_height =  ($options.image.height * Math.abs(value) / 100);
-                        if(!$.browser.msie){
-                            $($image).attr('width',zoomInPx_width + "px");
-                            $($image).attr('height',zoomInPx_height + "px");
-                        }else{
-                            $($image).css({
+                        if($.browser.msie && parseInt($.browser.version) < 9){
+			    $($image).css({
                                 'width': zoomInPx_width + "px",
                                 'height': zoomInPx_height + "px"
-                            });
+                            });	
+                            
+                        }else{
+                            $($image).attr('width',zoomInPx_width + "px");
+                            $($image).attr('height',zoomInPx_height + "px");
                         }
 
 
