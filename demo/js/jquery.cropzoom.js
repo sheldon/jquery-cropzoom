@@ -140,7 +140,7 @@ THE SOFTWARE.
             });
             
 
-            if($.browser.msie && parseInt($.browser.version) < 9){
+            if($.browser.msie && (!$.support.leadingWhitespace)){
 
 		// Add VML includes and namespace
                 _self[0].ownerDocument.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML");
@@ -333,7 +333,7 @@ THE SOFTWARE.
                 var traslacion = "";
                 $(function(){
                     // console.log(imageData.id);
-                    if($.browser.msie && parseInt($.browser.version) < 9){
+                    if($.browser.msie && (!$.support.leadingWhitespace)){
                         rotacion = getData('image').rotation;
                         $($image).css({
                             'rotation': rotacion,
@@ -445,7 +445,7 @@ THE SOFTWARE.
 			var value = ($options.expose.slidersOrientation == 'vertical' ? ($options.image.maxZoom - ui.value) : ui.value);
                         var zoomInPx_width =  ($options.image.width * Math.abs(value) / 100);
                         var zoomInPx_height =  ($options.image.height * Math.abs(value) / 100);
-                        if($.browser.msie && parseInt($.browser.version) < 9){
+                        if($.browser.msie && (!$.support.leadingWhitespace)){
 			    $($image).css({
                                 'width': zoomInPx_width + "px",
                                 'height': zoomInPx_height + "px"
