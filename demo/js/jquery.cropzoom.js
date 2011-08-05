@@ -93,7 +93,7 @@ THE SOFTWARE.
                 };
 
             var $options  = $.extend(true,defaults, options); 
-            //Verificamos que esten los plugins necesarios
+            // Verificamos que esten los plugins necesarios
             if(!$.isFunction($.fn.draggable) || !$.isFunction($.fn.resizable) || !$.isFunction($.fn.slider)){
                 alert("You must include ui.draggable, ui.resizable and ui.slider to use cropZoom");
                 return;
@@ -140,7 +140,7 @@ THE SOFTWARE.
             });
             
 
-            if($.browser.msie && (!$.support.leadingWhitespace)){
+            if($.browser.msie){
 
 		// Add VML includes and namespace
                 _self[0].ownerDocument.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML");
@@ -154,7 +154,11 @@ THE SOFTWARE.
                     'height':$options.height,
                     'position':'absolute' 
                 });
-                $image = document.createElement('v:image');
+                if($.support.leadingWhitespace){
+                	$image = document.createElement('img');
+                }else{
+                	$image = document.createElement('v:image');
+                }
                 $image.setAttribute('src',$options.image.source);
                 $image.setAttribute('gamma','0');
                 
@@ -190,16 +194,16 @@ THE SOFTWARE.
                 $($image).attr('y', 0);
                 $svg.appendChild($image);
             }
-            //$($image).data('container_id', _self[0].id);
+            // $($image).data('container_id', _self[0].id);
             _self.append($svg);  
 
             calculateTranslationAndRotation();         
 
-            //Bindear el drageo a la imagen a cortar
+            // Bindear el drageo a la imagen a cortar
             $($image).draggable({
                 refreshPositions:true,
                 start: function(event,ui){
-                    calculateTranslationAndRotation();
+                    // calculateTranslationAndRotation();
                 },
                 drag:function(event,ui){ 
                     getData('image').posY = ui.position.top;
@@ -208,7 +212,7 @@ THE SOFTWARE.
                         limitBounds(ui);
                     else
                         calculateTranslationAndRotation();
-                    //Fire the callback
+                    // Fire the callback
                     if($options.image.onImageDrag != null)
                         $options.image.onImageDrag($image);
 
@@ -220,16 +224,16 @@ THE SOFTWARE.
             });
 
 
-            //Creamos el selector  
+            // Creamos el selector
             createSelector();
-            //Cambiamos el resizable por un color solido
+            // Cambiamos el resizable por un color solido
             _self.find('.ui-icon-gripsmall-diagonal-se').css({
                 'background':'#FFF',
                 'border':'1px solid #000',
                 'width':8,
                 'height':8
             });
-            //Creamos la Capa de oscurecimiento
+            // Creamos la Capa de oscurecimiento
             createOverlay(); 
 
             if($options.selector.startWithOverlay){
@@ -244,24 +248,22 @@ THE SOFTWARE.
             }
             /* End Make Overlay at start */
 
-            //Creamos el Control de Zoom 
+            // Creamos el Control de Zoom
             if($options.enableZoom) 
                 createZoomSlider();
-            //Creamos el Control de Rotacion
+            // Creamos el Control de Rotacion
             if($options.enableRotation)
                 createRotationSlider();
             if($options.expose.elementMovement != '')
                 createMovementControls(); 
 
 
-            //Methods
-            /*function getSelf(){
-            return _self;
-            }
-
-            function getOptions(){
-            return $options;
-            }*/
+            // Methods
+            /*
+			 * function getSelf(){ return _self; }
+			 * 
+			 * function getOptions(){ return $options; }
+			 */
 
             function limitBounds(ui){
                 if (ui.position.top > 0)
@@ -320,7 +322,7 @@ THE SOFTWARE.
                     }
                 }
                 
-                //Disable snap to container if is little
+                // Disable snap to container if is little
                 if(getData('image').w < $options.width && getData('image').h < $options.height){
                     $options.image.snapToContainer = false;
                 }
@@ -333,28 +335,28 @@ THE SOFTWARE.
                 var traslacion = "";
                 $(function(){
                     // console.log(imageData.id);
-                    if($.browser.msie && (!$.support.leadingWhitespace)){
-                        rotacion = getData('image').rotation;
-                        $($image).css({
-                            'rotation': rotacion,
-                            'top': getData('image').posY,
-                            'left':getData('image').posX
-                        });
+                    if($.browser.msie){
+						if($.support.leadingWhitespace){
+							rotacion = "rotate(" + getData('image').rotation + "deg)";/* + (getData('image').posX + (getData('image').w / 2 )) + "," + (getData('image').posY + (getData('image').h / 2)) +*/ 
+							$($image).css({
+										'msTransform': rotacion,
+					                    'top': getData('image').posY,
+					                    'left':getData('image').posX
+					                });
+						
+						}else{
+							 rotacion = getData('image').rotation;
+					                $($image).css({
+					                    'rotation': rotacion,
+					                    'top': getData('image').posY,
+					                    'left':getData('image').posX
+					                });
+						}
                     }else{
-                        
-                        rotacion = "rotate(" + getData('image').rotation + "," + (getData('image').posX + (getData('image').w / 2 )) + "," + (getData('image').posY + (getData('image').h / 2))  + ")";
-			if($.browser.mise){
-			 $($image).attr("transform",rotacion);
-			 $($image).css({
-                            'top': getData('image').posY,
-                            'left':getData('image').posX
-                         });			
-			}else{
-			 traslacion = " translate(" + getData('image').posX + "," + getData('image').posY + ")"; 
-                         rotacion += traslacion;
-                         $($image).attr("transform",rotacion);  
-			}    
-                        
+                    	rotacion = "rotate(" + getData('image').rotation + "," + (getData('image').posX + (getData('image').w / 2 )) + "," + (getData('image').posY + (getData('image').h / 2)) + ")";
+                    	traslacion = " translate(" + getData('image').posX + "," + getData('image').posY + ")"; 
+                        rotacion += traslacion;
+                        $($image).attr("transform",rotacion);   
                     }
                 });
             };
@@ -371,7 +373,7 @@ THE SOFTWARE.
                 var rotMax = $('<div />').attr('id','rotationMax').html("360");
 
                 var $slider = $("<div />").attr('id','rotationSlider');
-                //Aplicamos el Slider  
+                // Aplicamos el Slider
                 var orientation = 'vertical';
                 var value = Math.abs(360 - $options.image.rotation);
 
@@ -434,7 +436,7 @@ THE SOFTWARE.
 
                 var $slider = $("<div />").attr('id','zoomSlider');
 
-                //Aplicamos el Slider 
+                // Aplicamos el Slider
                 $slider.slider({
                     orientation: ($options.expose.zoomElement != '' ? $options.expose.slidersOrientation : 'vertical'),
                     value: ($options.image.startZoom != 0 ? $options.image.startZoom : getPercentOfZoom(getData('image'))),
@@ -445,7 +447,7 @@ THE SOFTWARE.
 			var value = ($options.expose.slidersOrientation == 'vertical' ? ($options.image.maxZoom - ui.value) : ui.value);
                         var zoomInPx_width =  ($options.image.width * Math.abs(value) / 100);
                         var zoomInPx_height =  ($options.image.height * Math.abs(value) / 100);
-                        if($.browser.msie && (!$.support.leadingWhitespace)){
+                        if($.browser.msie){
 			    $($image).css({
                                 'width': zoomInPx_width + "px",
                                 'height': zoomInPx_height + "px"
@@ -540,13 +542,13 @@ THE SOFTWARE.
                         'border':'1px dashed '+ $options.selector.borderColor
                     })
                 });
-                //Aplicamos el drageo al selector
+                // Aplicamos el drageo al selector
                 $selector.draggable({
                     containment: 'parent',
                     iframeFix: true,
                     refreshPositions: true,
                     drag: function(event,ui){
-                        //Actualizamos las posiciones de la mascara 
+                        // Actualizamos las posiciones de la mascara
                         getData('selector').x = ui.position.left;
                         getData('selector').y = ui.position.top;
                         makeOverlayPositions(ui);
@@ -555,7 +557,7 @@ THE SOFTWARE.
                             $options.selector.onSelectorDrag($selector, getData('selector')); 
                     },
                     stop: function(event,ui){
-                        //Ocultar la mascara
+                        // Ocultar la mascara
                         if($options.selector.hideOverlayOnDragAndResize)
                             hideOverlay();
                         if($options.selector.onSelectorDragStop != null)
@@ -570,7 +572,7 @@ THE SOFTWARE.
                     minWidth: $options.selector.w,
                     containment: 'parent', 
                     resize: function(event,ui){
-                        //Actualizamos las posiciones de la mascara
+                        // Actualizamos las posiciones de la mascara
                         getData('selector').w = $selector.width();
                         getData('selector').h = $selector.height();
                         makeOverlayPositions(ui);
@@ -587,7 +589,7 @@ THE SOFTWARE.
                 });     
 
                 showInfo($selector);
-                //Agregamos el selector al objeto contenedor
+                // Agregamos el selector al objeto contenedor
                 _self.append($selector);
             };
 
@@ -803,7 +805,7 @@ THE SOFTWARE.
                 return $options;
             }
 
-            //Maintein Chaining 
+            // Maintein Chaining
             return this;
         });
 
@@ -811,7 +813,7 @@ THE SOFTWARE.
 
 
 
-    /*Code taken from jquery.svgdom.js */
+    /* Code taken from jquery.svgdom.js */
     /* Support adding class names to SVG nodes. */
     var origAddClass = $.fn.addClass;
 
@@ -940,9 +942,15 @@ THE SOFTWARE.
         return (node.nodeType == 1 && node.namespaceURI == 'http://www.w3.org/2000/svg');
     };
 
+    //Css Hooks
+    jQuery.cssHooks["MsTransform"] = {
+    	    set: function( elem, value ) {
+    	        elem.style.msTransform = value;
+    	    }
+    };
     
     $.fn.extend({
-        //Function to set the selector position and sizes
+        // Function to set the selector position and sizes
         setSelector: function(x,y,w,h,animate){
             var _self = $(this);
             if(animate != undefined && animate == true){
@@ -967,7 +975,7 @@ THE SOFTWARE.
                 h: h
             });
         },
-        //Restore the Plugin
+        // Restore the Plugin
         restore: function(){
             var _self = $(this);
             var $options = $(this).cropzoom.getOptions();
@@ -987,7 +995,7 @@ THE SOFTWARE.
 
 
         },
-        //Send the Data to the Server
+        // Send the Data to the Server
         send : function(url,type,custom,onSuccess){
             var _self = $(this);
             var response = "";
@@ -1003,5 +1011,5 @@ THE SOFTWARE.
             });
         }  
     });
-
+    
 })(jQuery);
