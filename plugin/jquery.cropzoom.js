@@ -284,7 +284,7 @@ The tool was completly redesign from its original version to meet certain criter
 						rotacion = "rotate("
 								+ getData('image').rotation
 								+ "deg)";
-						$($image).css({
+						$(_mimage).css({
 							'msTransform' : rotacion,
 							'top' : getData('image').posY,
 							'left' : getData('image').posX
@@ -292,7 +292,7 @@ The tool was completly redesign from its original version to meet certain criter
 
 					} else {
 						rotacion = getData('image').rotation;
-						$($image).css({
+						$(_mimage).css({
 							'rotation' : rotacion,
 							'top' : getData('image').posY,
 							'left' : getData('image').posX
@@ -310,7 +310,7 @@ The tool was completly redesign from its original version to meet certain criter
 							+ getData('image').posX + ","
 							+ getData('image').posY + ")";
 					rotacion += traslacion;
-					$($image).attr("transform", rotacion);
+					$(_mimage).attr("transform", rotacion);
 				}
 			});
      }
