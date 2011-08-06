@@ -131,11 +131,11 @@ The tool was completly redesign from its original version to meet certain criter
                     'height':$options.height,
                     'position':'absolute' 
                 });
-				//if ($.support.leadingWhitespace) {
-				//	$image = document.createElement('img');
-				//} else {
+				if ($.support.leadingWhitespace) {
+					$image = document.createElement('img');
+				} else {
 					$image = document.createElement('v:image');
-				//}
+				}
 
                 
                 $image.setAttribute('id','img_to_crop');
@@ -144,8 +144,8 @@ The tool was completly redesign from its original version to meet certain criter
                 
                 $($image).css({
                     'position':'absolute',
-                    'left': 0,
-                    'top': 0,
+                    'left': '0px',
+                    'top': '0px,
                     'margin':'0px',
                     'padding':'0px',
                     'width': getData('image').w,
@@ -288,16 +288,16 @@ The tool was completly redesign from its original version to meet certain criter
 								+ "deg)";
 						$('#img_to_crop').css({
 							'msTransform' : rotacion,
-							'top' : getData('image').posY,
-							'left' : getData('image').posX
+							'top' : getData('image').posY + "px",
+							'left' : getData('image').posX + "px"
 						});
 
 					} else {
 						rotacion = getData('image').rotation;
 						$('#img_to_crop').css({
 							'rotation' : rotacion,
-							'top' : getData('image').posY,
-							'left' : getData('image').posX
+							'top' : getData('image').posY + "px",
+							'left' : getData('image').posX + "px"
 						});
 					}
 				} else {
