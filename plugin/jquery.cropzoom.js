@@ -943,11 +943,11 @@ THE SOFTWARE.
     };
 
     //Css Hooks
-    jQuery.cssHooks["MsTransform"] = {
+    /*jQuery.cssHooks["MsTransform"] = {
     	    set: function( elem, value ) {
     	        elem.style.msTransform = value;
     	    }
-    };
+    };*/
     
     $.fn.extend({
         // Function to set the selector position and sizes
