@@ -146,6 +146,8 @@ The tool was completly redesign from its original version to meet certain criter
                     'position':'absolute',
                     'left': 0,
                     'top': 0,
+                    'margin':'0px',
+                    'padding':'0px',
                     'width': getData('image').w,
                     'height':getData('image').h
                 });
