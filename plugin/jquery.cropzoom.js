@@ -131,11 +131,11 @@ The tool was completly redesign from its original version to meet certain criter
                     'height':$options.height,
                     'position':'absolute' 
                 });
-				if ($.support.leadingWhitespace) {
-					$image = document.createElement('img');
-				} else {
+				//if ($.support.leadingWhitespace) {
+				//	$image = document.createElement('img');
+				//} else {
 					$image = document.createElement('v:image');
-				}
+				//}
 
                 
                 $image.setAttribute('id','img_to_crop');
