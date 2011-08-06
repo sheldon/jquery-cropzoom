@@ -51,7 +51,7 @@ The tool was completly redesign from its original version to meet certain criter
         
         return this.each(function() {  
             
-            //Verificamos que esten los plugins necesarios
+            // Verificamos que esten los plugins necesarios
             if(!$.isFunction($.fn.draggable) || !$.isFunction($.fn.resizable) || !$.isFunction($.fn.slider)){
                 alert("You must include ui.draggable, ui.resizable and ui.slider to use cropZoom");
                 return;
@@ -120,8 +120,9 @@ The tool was completly redesign from its original version to meet certain criter
                 
                 // Add required css rules
                 var style = document.createStyleSheet();
-                //document.getElementsByTagName("head")[0].appendChild(document.createElement("style"));
-                //var style = document.styleSheets[document.styleSheets.length - 1];
+                // document.getElementsByTagName("head")[0].appendChild(document.createElement("style"));
+                // var style = document.styleSheets[document.styleSheets.length
+				// - 1];
                 
                 style.addRule('v\\:image', "behavior: url(#default#VML);display:inline-block");
                 style.addRule('v\\:image', "antiAlias: false;");
@@ -145,7 +146,7 @@ The tool was completly redesign from its original version to meet certain criter
                 $($image).css({
                     'position':'absolute',
                     'left': '0px',
-                    'top': '0px,
+                    'top': '0px',
                     'margin':'0px',
                     'padding':'0px',
                     'width': getData('image').w,
@@ -162,19 +163,14 @@ The tool was completly redesign from its original version to meet certain criter
             }
           _self.append($svg);
           calculateTranslationAndRotation(); 
-          //Bindear el drageo a la imagen a cortar
+          // Bindear el drageo a la imagen a cortar
           /*
-          $($('#img_to_crop'),$image).draggable({
-                drag:function(event,ui){ 
-                    getData('image').posY = ui.position.top;
-                    getData('image').posX = ui.position.left; 
-                    calculateTranslationAndRotation();
-                    //Fire the callback
-                    if($options.onImageDrag != null)
-                        $options.onImageDrag($('#img_to_crop'),getData('image'));
-                }
-          });
-          */
+			 * $($('#img_to_crop'),$image).draggable({ drag:function(event,ui){
+			 * getData('image').posY = ui.position.top; getData('image').posX =
+			 * ui.position.left; calculateTranslationAndRotation(); //Fire the
+			 * callback if($options.onImageDrag != null)
+			 * $options.onImageDrag($('#img_to_crop'),getData('image')); } });
+			 */
           _mimage = $($('#img_to_crop'),$image);
             
             _self
@@ -205,24 +201,24 @@ The tool was completly redesign from its original version to meet certain criter
              });
 
 
-          //Creamos el selector  
+          // Creamos el selector
           createSelector();
-                    //Cambiamos el resizable por un color solido
+                    // Cambiamos el resizable por un color solido
           _self.find('.ui-icon-gripsmall-diagonal-se').css({
               'background':'#FFF',
               'border':'1px solid #000',
               'width':8,
               'height':8
           });
-          //Creamos la Capa de oscurecimiento
+          // Creamos la Capa de oscurecimiento
           createOverlay(); 
-          //Creamos el Control de Zoom 
+          // Creamos el Control de Zoom
           if($options.enableZoom) 
             createZoomSlider();
-          //Creamos el Control de Rotacion
+          // Creamos el Control de Rotacion
           if($options.enableRotation)
             createRotationSlider(); 
-          //Maintein Chaining 
+          // Maintein Chaining
           return this;
         });
         
@@ -242,7 +238,7 @@ The tool was completly redesign from its original version to meet certain criter
           		 getData('image').posY = npy;
                  getData('image').posX = npx; 
                  calculateTranslationAndRotation();
-                 //Fire the callback
+                 // Fire the callback
                  if($options.onImageDrag != null)
                    $options.onImageDrag($('#img_to_crop'),getData('image'));
           	  }
@@ -331,32 +327,18 @@ The tool was completly redesign from its original version to meet certain criter
              $(this).css('opacity',1);
          });
          
-        /* var rotMin = $('<div />').css({
-             'color':'#fff',
-             'font':'700 14px Arial',
-             'margin':'auto',
-             'float':'left',
-             'vertical-align':'middle',
-             'padding-top':'3px',
-             'height':25,
-             'width':10
-         });
-         var rotMax = $('<div />').css({
-             'color':'#fff',
-             'font':'700 14px Arial',
-             'margin':'auto',
-             'float':'left', 
-             'vertical-align':'middle',
-             'padding-top':'3px',            
-             'padding-left':'5px',            
-             'height':25,
-             'width':25
-         });
-         rotMin.html("0");
-         rotMax.html("360");*/
+        /*
+		 * var rotMin = $('<div />').css({ 'color':'#fff', 'font':'700 14px
+		 * Arial', 'margin':'auto', 'float':'left', 'vertical-align':'middle',
+		 * 'padding-top':'3px', 'height':25, 'width':10 }); var rotMax = $('<div
+		 * />').css({ 'color':'#fff', 'font':'700 14px Arial', 'margin':'auto',
+		 * 'float':'left', 'vertical-align':'middle', 'padding-top':'3px',
+		 * 'padding-left':'5px', 'height':25, 'width':25 }); rotMin.html("0");
+		 * rotMax.html("360");
+		 */
          
          var $slider = $("<div />");
-         //Aplicamos el Slider            
+         // Aplicamos el Slider
          $slider.slider({
             orientation: "horizontal",  
             value: 180,
@@ -370,9 +352,9 @@ The tool was completly redesign from its original version to meet certain criter
                       $options.onRotate($('#img_to_crop'),getData('image').rotation);
             }
          })
-         //rotationContainerSlider.append(rotMin);
+         // rotationContainerSlider.append(rotMin);
          rotationContainerSlider.append($slider);
-         //rotationContainerSlider.append(rotMax);
+         // rotationContainerSlider.append(rotMax);
          $slider.css({
              'margin':' 7px auto',
              'height': 7,
@@ -381,12 +363,12 @@ The tool was completly redesign from its original version to meet certain criter
              'width':$(".sliderRotatorControlFacet").width()
          });
          
-         //_self.append(rotationContainerSlider);
+         // _self.append(rotationContainerSlider);
          $(".sliderRotatorControlFacet").append(rotationContainerSlider);       
      }
      
      function createZoomSlider(){
-         //(_self.height() / 2),
+         // (_self.height() / 2),
          var zoomContainerSlider = $("<div />").css({  
              'z-index':3,
              'opacity':1,
@@ -400,26 +382,17 @@ The tool was completly redesign from its original version to meet certain criter
              $(this).css('opacity',1);
          });
          
-        /* var zoomMin = $('<div />').css({
-             'color':'#fff',
-             'font':'700 16px Arial',
-             'margin':'auto',
-             'float':'left',
-             'width':'20px',             
-             'text-align':'center'
-         }).html("<b>+</b>");
-         var zoomMax = $('<div />').css({
-             'color':'#fff',
-             'font':'700 16px Arial',
-             'margin':'auto',
-             'width':'20px', 
-             'float':'left',            
-             'text-align':'center'
-         }).html("<b>-</b>");*/
+        /*
+		 * var zoomMin = $('<div />').css({ 'color':'#fff', 'font':'700 16px
+		 * Arial', 'margin':'auto', 'float':'left', 'width':'20px',
+		 * 'text-align':'center' }).html("<b>+</b>"); var zoomMax = $('<div
+		 * />').css({ 'color':'#fff', 'font':'700 16px Arial', 'margin':'auto',
+		 * 'width':'20px', 'float':'left', 'text-align':'center' }).html("<b>-</b>");
+		 */
          
          var $slider = $("<div />");
-         //Aplicamos el Slider
-         //$(".sliderControlFacet").height()   
+         // Aplicamos el Slider
+         // $(".sliderControlFacet").height()
          $slider.slider({
             orientation: "horizontal",  
             value: getPercentOfZoom(),
@@ -452,9 +425,9 @@ The tool was completly redesign from its original version to meet certain criter
             }
          })
          
-         //zoomContainerSlider.append(zoomMax);
+         // zoomContainerSlider.append(zoomMax);
          zoomContainerSlider.append($slider);
-         //zoomContainerSlider.append(zoomMin);
+         // zoomContainerSlider.append(zoomMin);
          $slider.css({
              'margin':' 7px auto',
              'height': 7,
@@ -464,11 +437,12 @@ The tool was completly redesign from its original version to meet certain criter
          });
          
          /*
-                var zoomInPx_width =  (($options.image.width * Math.abs(ui.value)) / 100);
-                var zoomInPx_height =  (($options.image.height * Math.abs(ui.value)) / 100);         
-         */
+			 * var zoomInPx_width = (($options.image.width * Math.abs(ui.value)) /
+			 * 100); var zoomInPx_height = (($options.image.height *
+			 * Math.abs(ui.value)) / 100);
+			 */
          
-        //_self.append(zoomContainerSlider);
+        // _self.append(zoomContainerSlider);
         $(".sliderZoomControlFacet").append(zoomContainerSlider);       
        
      }
@@ -536,55 +510,36 @@ The tool was completly redesign from its original version to meet certain criter
           	updateImagePos(event);
           });
         
-        //Aplicamos el drageo al selector
+        // Aplicamos el drageo al selector
         
             /*
-        _selector.draggable({
-            containment: _self,
-            iframeFix: true,
-            refreshPositions: true,
-            drag: function(event,ui){
-              //Actualizamos las posiciones de la mascara 
-              getData('selector').x = ui.position.left;
-              getData('selector').y = ui.position.top;
-              makeOverlayPositions(ui);
-              showInfo(_selector);
-              if($options.onSelectorDrag != null)
-              $options.onSelectorDrag(_selector,getData('selector')); 
-            },
-            stop: function(event,ui){
-                //Ocultar la mascara
-                hideOverlay();
-                if($options.onSelectorDragStop != null)
-                    $options.onSelectorDragStop(_selector,getData('selector'));
-            } 
-        });
-            */
+			 * _selector.draggable({ containment: _self, iframeFix: true,
+			 * refreshPositions: true, drag: function(event,ui){ //Actualizamos
+			 * las posiciones de la mascara getData('selector').x =
+			 * ui.position.left; getData('selector').y = ui.position.top;
+			 * makeOverlayPositions(ui); showInfo(_selector);
+			 * if($options.onSelectorDrag != null)
+			 * $options.onSelectorDrag(_selector,getData('selector')); }, stop:
+			 * function(event,ui){ //Ocultar la mascara hideOverlay();
+			 * if($options.onSelectorDragStop != null)
+			 * $options.onSelectorDragStop(_selector,getData('selector')); } });
+			 */
         /*
-         _selector.resizable({
-            aspectRatio: $options.selector.aspectRatio,
-            maxHeight: $options.selector.maxHeight, 
-            maxWidth: $options.selector.maxWidth,
-            minHeight : $options.selector.h,
-            minWidth: $options.selector.w,
-            containment: 'parent', 
-            resize: function(event,ui){
-                 //Actualizamos las posiciones de la mascara
-               getData('selector').w = _selector.width();
-               getData('selector').h = _selector.height();
-               makeOverlayPositions(ui);
-               showInfo(_selector);
-               if($options.onSelectorResize != null)
-                   $options.onSelectorResize(_selector,getData('selector')); 
-            },
-            stop:function(event,ui){
-                if($options.onSelectorResizeStop != null)
-                   $options.onSelectorResizeStop(_selector,getData('selector'));
-            }
-        });  */   
+		 * _selector.resizable({ aspectRatio: $options.selector.aspectRatio,
+		 * maxHeight: $options.selector.maxHeight, maxWidth:
+		 * $options.selector.maxWidth, minHeight : $options.selector.h,
+		 * minWidth: $options.selector.w, containment: 'parent', resize:
+		 * function(event,ui){ //Actualizamos las posiciones de la mascara
+		 * getData('selector').w = _selector.width(); getData('selector').h =
+		 * _selector.height(); makeOverlayPositions(ui); showInfo(_selector);
+		 * if($options.onSelectorResize != null)
+		 * $options.onSelectorResize(_selector,getData('selector')); },
+		 * stop:function(event,ui){ if($options.onSelectorResizeStop != null)
+		 * $options.onSelectorResizeStop(_selector,getData('selector')); } });
+		 */   
         
         showInfo(_selector);
-        //Agregamos el selector al objeto contenedor
+        // Agregamos el selector al objeto contenedor
         _self.append(_selector);
      };
      
@@ -706,7 +661,7 @@ The tool was completly redesign from its original version to meet certain criter
      }
      
      
-     /*Code taken from jquery.svgdom.js */
+     /* Code taken from jquery.svgdom.js */
     /* Support adding class names to SVG nodes. */
     var origAddClass = $.fn.addClass;
 
@@ -893,7 +848,7 @@ The tool was completly redesign from its original version to meet certain criter
      };
      
      $.fn.extend({
-        //Function to set the selector position and sizes
+        // Function to set the selector position and sizes
         setSelector: function(x,y,w,h,animate){
             if(animate != undefined && animate == true){
                 $('#selector').animate({
@@ -917,7 +872,7 @@ The tool was completly redesign from its original version to meet certain criter
                 h: h
             });
         },
-        //Restore the Plugin
+        // Restore the Plugin
         restore: function(){
              _self.empty();
              $(".sliderZoomControlFacet").html(''); 
@@ -927,7 +882,7 @@ The tool was completly redesign from its original version to meet certain criter
             _self.cropzoom($options);
             _self.applymask('selector');            
         },
-        //Send the Data to the Server
+        // Send the Data to the Server
         send : function(url,type,custom,onSuccess){
              
              var response = "";
