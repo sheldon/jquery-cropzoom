@@ -284,7 +284,7 @@ The tool was completly redesign from its original version to meet certain criter
 						rotacion = "rotate("
 								+ getData('image').rotation
 								+ "deg)";
-						$(_mimage).css({
+						$('#img_to_crop').css({
 							'msTransform' : rotacion,
 							'top' : getData('image').posY,
 							'left' : getData('image').posX
@@ -292,7 +292,7 @@ The tool was completly redesign from its original version to meet certain criter
 
 					} else {
 						rotacion = getData('image').rotation;
-						$(_mimage).css({
+						$('#img_to_crop').css({
 							'rotation' : rotacion,
 							'top' : getData('image').posY,
 							'left' : getData('image').posX
@@ -310,7 +310,7 @@ The tool was completly redesign from its original version to meet certain criter
 							+ getData('image').posX + ","
 							+ getData('image').posY + ")";
 					rotacion += traslacion;
-					$(_mimage).attr("transform", rotacion);
+					$('#img_to_crop').attr("transform", rotacion);
 				}
 			});
      }
