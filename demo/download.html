@@ -1,12 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US" xml:lang="en">
 <head>
-    <!--
-    Created by Artisteer v2.3.0.20943
-    Base template (without user's data) checked by http://validator.w3.org : "This page is valid XHTML 1.0 Transitional"
-    -->
+    <meta name="google-site-verification" content="LgblCrocw4d4ccdOkob0kzt3Ing7mMy1dKTtLoUb-2s" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 	<meta name="keywords" content="how crop images, how zoom images, crop image,CropZooom, rotate image, zoom image, jquery plugin, crop plugin, zoom plugin, rotation, croppping, zooming" />
 	<meta name="description" content="CropZoom is a plugin that let you select, rotate and zoom an image to make a crop. This is free and ready to use." />
     <title>CropZoom another Jquery Plugin</title>
@@ -95,6 +91,11 @@
                                             </h2>
                                         </div>
                                         <div class="PostContent">
+					    <p>
+                                                <b>07/08/2011</b>
+                                                <i>Release 1.1</i><br />
+                                                Fix for IE9, also was added two new properties to the image object, X and Y, those could be set at creation time.
+                                            </p>
                                             <p>
                                                 <b>06/02/2011</b>
                                                 <i>Release 1.1</i><br />
@@ -464,13 +465,13 @@ $(document).ready(function(){
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">startWithOverlay <span style="color:red;">NEW</span></td>
+                                                    <td align="left">startWithOverlay</td>
                                                     <td>false</td>
                                                     <td align="left">this will be turn on the dark overlay at start</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">hideOverlayOnDragAndResize <span style="color:red;">NEW</span></td>
+                                                    <td align="left">hideOverlayOnDragAndResize</td>
                                                     <td>true</td>
                                                     <td align="left">this will be turn on or turn of the dark overlay when you drag or resize.</td>
                                                 </tr>
@@ -560,7 +561,7 @@ $(document).ready(function(){
                                 <div class="Post-inner">
                                         <div class="PostMetadataHeader">
                                             <h2 class="PostHeader">
-                                                Expose Properties.<span style="color:red;">NEW</span>
+                                                Expose Properties.
                                             </h2>
                                         </div>
                                         <div class="PostContent">
@@ -573,31 +574,31 @@ $(document).ready(function(){
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">slidersOrientation <span style="color:red;">NEW</span></td>
+                                                    <td align="left">slidersOrientation</td>
                                                     <td>horizontal</td>
                                                     <td align="left">set the direction of the zoom and rotation sliders into the exposed element</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">zoomElement <span style="color:red;">NEW</span></td>
+                                                    <td align="left">zoomElement</td>
                                                     <td>NULL</td>
                                                     <td align="left">the DOM Element that will contain the zoom slider.</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">rotationElement <span style="color:red;">NEW</span></td>
+                                                    <td align="left">rotationElement</td>
                                                     <td>NULL</td>
                                                     <td align="left">the DOM Element that will contain the rotation slider</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">elementMovement <span style="color:red;">NEW</span></td>
+                                                    <td align="left">elementMovement</td>
                                                     <td>NULL</td>
                                                     <td align="left">the DOM Element that will contain the MOVEMENT CONTROL</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">movementSteps <span style="color:red;">NEW</span></td>
+                                                    <td align="left">movementSteps</td>
                                                     <td>5</td>
                                                     <td align="left">number of pixel that the image will move when click on one of the buttons into the MOVEMENT CONTROL</td>
                                                 </tr>
@@ -636,6 +637,18 @@ $(document).ready(function(){
                                                     <td>0</td>
                                                     <td align="left">rotation in degrees of the image</td>
                                                 </tr>
+						<tr>
+                                                    <td>Property</td>
+                                                    <td align="left">x <span style="color:red;">NEW</span></td>
+                                                    <td>0</td>
+                                                    <td align="left">x axis value</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Property</td>
+                                                    <td align="left">y <span style="color:red;">NEW</span></td>
+                                                    <td>0</td>
+                                                    <td align="left">y axis value</td>
+                                                </tr>
                                                 <tr>
                                                     <td>Property</td>
                                                     <td align="left">width</td>
@@ -662,19 +675,19 @@ $(document).ready(function(){
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">startZoom <span style="color:red;">NEW</span></td>
+                                                    <td align="left">startZoom</td>
                                                     <td>50</td>
                                                     <td align="left">percent of the starting zoom of the image</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">useStartZoomAsMinZoom <span style="color:red;">NEW</span></td>
+                                                    <td align="left">useStartZoomAsMinZoom</td>
                                                     <td>true</td>
                                                     <td align="left">use the <b>minZoom</b> property as startZoom promerty <b>startZoom</b> will be ignored</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Property</td>
-                                                    <td align="left">snapToContainer <span style="color:red;">NEW</span></td>
+                                                    <td align="left">snapToContainer</td>
                                                     <td>false</td>
                                                     <td align="left">this allow to drag the image into the container boundaries.</td>
                                                 </tr>
