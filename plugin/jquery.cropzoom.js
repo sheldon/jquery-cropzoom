@@ -73,6 +73,8 @@ THE SOFTWARE.
 							minZoom : 10,
 							maxZoom : 150,
 							startZoom : 0,
+							x:0,
+							y:0,
 							useStartZoomAsMinZoom : false,
 							snapToContainer : false,
 							onZoom : null,
@@ -122,8 +124,8 @@ THE SOFTWARE.
 					setData('image', {
 						h : $options.image.height,
 						w : $options.image.width,
-						posY : 0,
-						posX : 0,
+						posY : $options.image.y,
+						posX : $options.image.x,
 						scaleX : 0,
 						scaleY : 0,
 						rotation : $options.image.rotation,
@@ -329,9 +331,9 @@ THE SOFTWARE.
 
 						} else {
 
-							getData('image').posY = 0;
+							/*getData('image').posY = 0;
 
-							getData('image').posX = 0;
+							getData('image').posX = 0;*/
 
 							var scaleX = getData('image').scaleX;
 							var scaleY = getData('image').scaleY;
