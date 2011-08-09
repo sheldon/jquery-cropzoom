@@ -13,7 +13,8 @@
     <link href="css/jquery.cropzoom.css" rel="Stylesheet" type="text/css" /> 
     <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
-    <script type="text/javascript" src="http://cropzoom.googlecode.com/svn/trunk/plugin/jquery.cropzoom.js"></script>
+    <script type="text/javascript" src="js/jquery.cropzoom.js"></script>
+    <!--<script type="text/javascript" src="http://cropzoom.googlecode.com/svn/trunk/plugin/jquery.cropzoom.js"></script>-->
     <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
     <!--[if IE 6]><link rel="stylesheet" href="css/style.ie6.css" type="text/css" media="screen" /><![endif]-->
     <!--[if IE 7]><link rel="stylesheet" href="css/style.ie7.css" type="text/css" media="screen" /><![endif]-->
@@ -47,6 +48,7 @@
                 maxZoom:150
             }
         });
+        cropzoom.setSelector(45,45,200,150,true);
         $('#crop').click(function(){ 
             cropzoom.send('resize_and_crop.php','POST',{},function(rta){
                 $('.result').find('img').remove();

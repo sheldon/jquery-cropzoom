@@ -1,5 +1,5 @@
 /*
-CropZoom v1.1
+CropZoom v1.5
 Release Date: April 17, 2010
 
 Copyright (c) 2010 Gaston Robledo
@@ -25,244 +25,457 @@ THE SOFTWARE.
 ;
 (function($) {
 
-	$.fn.cropzoom = function(options) {
+	var czObject = {
+		// Elements needed
+		self : null,
+		tMovement : null,
+		selector : null,
+		image : null,
+		element : null,
+		settings: null,
+		// Default data
+		defaults : {
+			width : 500,
+			height : 375,
+			bgColor : '#000',
+			overlayColor : '#000',
+			selector : {
+				x : 0,
+				y : 0,
+				w : 229,
+				h : 100,
+				aspectRatio : false,
+				centered : false,
+				borderColor : 'yellow',
+				borderColorHover : 'red',
+				bgInfoLayer : '#FFF',
+				infoFontSize : 10,
+				infoFontColor : 'blue',
+				showPositionsOnDrag : true,
+				showDimetionsOnDrag : true,
+				maxHeight : null,
+				maxWidth : null,
+				startWithOverlay : false,
+				hideOverlayOnDragAndResize : true,
+				onSelectorDrag : null,
+				onSelectorDragStop : null,
+				onSelectorResize : null,
+				onSelectorResizeStop : null
+			},
+			image : {
+				source : '',
+				rotation : 0,
+				width : 0,
+				height : 0,
+				minZoom : 10,
+				maxZoom : 150,
+				startZoom : 0,
+				x : 0,
+				y : 0,
+				useStartZoomAsMinZoom : false,
+				snapToContainer : false,
+				onZoom : null,
+				onRotate : null,
+				onImageDrag : null
+			},
+			enableRotation : true,
+			enableZoom : true,
+			zoomSteps : 1,
+			rotationSteps : 5,
+			expose : {
+				slidersOrientation : 'vertical',
+				zoomElement : '',
+				rotationElement : '',
+				elementMovement : '',
+				movementSteps : 5
+			}
+		},
+		// Methods
+		init : function(options) {
+			settings = $.extend(true, defaults, options);
+			// Check if other plugins are loaded otherwise throw an exception
+			if (!$.isFunction($.fn.draggable) || !$.isFunction($.fn.resizable)
+					|| !$.isFunction($.fn.slider)) {
+				alert("You must include ui.draggable, ui.resizable and ui.slider to use cropZoom");
+				return;
+			}
+
+			if (settings.image.source == '' || settings.image.width == 0
+					|| settings.image.height == 0) {
+				alert('You must set the source, witdth and height of the image element');
+				return;
+			}
+
+			self = $(this);
+			self.empty();
+			self.css({
+				'width' : settings.width,
+				'height' : settings.height,
+				'background-color' : settings.bgColor,
+				'overflow' : 'hidden',
+				'position' : 'relative',
+				'border' : '2px solid #333'
+			});
+			settingData();
+			createContainerAndImage();
+			calculateTranslationAndRotation();
+			setImageDraggable();
+			createSelector();
+			createOverlay();
+			
+			if (settings.selector.startWithOverlay) {
+				/* Make Overlays at Start */
+				var ui_object = {
+					position : {
+						top : settings.position().top,
+						left : settings.position().left
+					}
+				};
+				makeOverlayPositions(ui_object);
+			}
+			/* End Make Overlay at start */
+
+		},
+		createContainerAndImage: function(){
+			if ($.browser.msie) {
+
+				// Add VML includes and namespace
+				self[0].ownerDocument.namespaces
+						.add('v', 'urn:schemas-microsoft-com:vml',
+								"#default#VML");
+				// Add required css rules
+				var style = document.createStyleSheet();
+				style
+						.addRule('v\\:image',
+								"behavior: url(#default#VML);display:inline-block");
+				style.addRule('v\\:image', "antiAlias: false;");
+
+				element = $("<div />").attr("id", "k").css({
+					'width' : settings.width,
+					'height' : settings.height,
+					'position' : 'absolute'
+				});
+				if ($.support.leadingWhitespace) {
+					image = document.createElement('img');
+				} else {
+					image = document.createElement('v:image');
+				}
+				image.setAttribute('src', settings.image.source);
+				image.setAttribute('gamma', '0');
+
+				$(image).css({
+					'position' : 'absolute',
+					'left' : getData('image').posX,
+					'top' : getData('image').posY,
+					'width' : getData('image').w,
+					'height' : getData('image').h
+				});
+				image.setAttribute('coordsize', '21600,21600');
+				image.outerHTML = image.outerHTML;
+
+				var ext = getExtensionSource();
+				if (ext == 'png' || ext == 'gif')
+					image.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"
+							+ settings.image.source
+							+ "',sizingMethod='scale');";
+				element.append(image);
+
+			} else {
+				element = self[0].ownerDocument.createElementNS(
+						'http://www.w3.org/2000/svg', 'svg');
+				element.setAttribute('id', 'k');
+				element.setAttribute('width', settings.width);
+				element.setAttribute('height', settings.height);
+				element.setAttribute('preserveAspectRatio', 'none');
+				image = self[0].ownerDocument.createElementNS(
+						'http://www.w3.org/2000/svg', 'image');
+				image.setAttributeNS('http://www.w3.org/1999/xlink',
+						'href', settings.image.source);
+				image.setAttribute('width', getData('image').w);
+				image.setAttribute('height', getData('image').h);
+				image.setAttribute('preserveAspectRatio', 'none');
+				$(image).attr('x', 0);
+				$(image).attr('y', 0);
+				element.appendChild(image);
+			}
+			self.append(element);
+		},
+		setImageDraggable: function(){
+			$(image).draggable({
+				refreshPositions : true,
+				drag : function(event, ui) {
+					getData('image').posY = ui.position.top;
+					getData('image').posX = ui.position.left;
+					if (settings.image.snapToContainer)
+						limitBounds(ui);
+					else
+						calculateTranslationAndRotation();
+					// Fire the callback
+					if (settings.image.onImageDrag != null)
+						settings.image.onImageDrag.apply(_self,[image]);
+
+				},
+				stop : function(event, ui) {
+					if (settings.image.snapToContainer)
+						limitBounds(ui);
+				}
+			});
+		},
+		settingData : function() {
+			setData('image', {
+				h : settings.image.height,
+				w : settings.image.width,
+				posY : settings.image.y,
+				posX : settings.image.x,
+				scaleX : 0,
+				scaleY : 0,
+				rotation : settings.image.rotation,
+				source : settings.image.source,
+				bounds : [ 0, 0, 0, 0 ],
+				id : 'image_to_crop_' + _self[0].id
+			});
+
+			setData(
+					'selector',
+					{
+						x : settings.selector.x,
+						y : settings.selector.y,
+						w : (settings.selector.maxWidth != null ? (settings.selector.w > settings.selector.maxWidth ? settings.selector.maxWidth
+								: settings.selector.w)
+								: settings.selector.w),
+						h : (settings.selector.maxHeight != null ? (settings.selector.h > settings.selector.maxHeight ? settings.selector.maxHeight
+								: settings.selector.h)
+								: settings.selector.h)
+					});
+			calculateFactor();
+			getCorrectSizes();
+		},
+		calculateFactor: function(){
+			getData('image').scaleX = (settings.width / getData('image').w);
+			getData('image').scaleY = (settings.height / getData('image').h);
+		},
+		getCorrectSizes(){
+			if (settings.image.startZoom != 0) {
+				var zoomInPx_width = ((settings.image.width * Math
+						.abs(settings.image.startZoom)) / 100);
+				var zoomInPx_height = ((settings.image.height * Math
+						.abs(settings.image.startZoom)) / 100);
+				getData('image').h = zoomInPx_height;
+				getData('image').w = zoomInPx_width;
+				// Checking if the position was set before
+				if (getData('image').posY != 0
+						&& getData('image').posX != 0) {
+					if (getData('image').h > settings.height)
+						getData('image').posY = Math
+								.abs((settings.height / 2)
+										- (getData('image').h / 2));
+					else
+						getData('image').posY = ((settings.height / 2) - (getData('image').h / 2));
+					if (getData('image').w > settings.width)
+						getData('image').posX = Math
+								.abs((settings.width / 2)
+										- (getData('image').w / 2));
+					else
+						getData('image').posX = ((settings.width / 2) - (getData('image').w / 2));
+				}
+			} else {
+				var scaleX = getData('image').scaleX;
+				var scaleY = getData('image').scaleY;
+				if (scaleY < scaleX) {
+					getData('image').h = settings.height;
+					getData('image').w = Math
+							.round(getData('image').w * scaleY);
+				} else {
+					getData('image').h = Math
+							.round(getData('image').h * scaleX);
+					getData('image').w = settings.width;
+				}
+			}
+
+			// Disable snap to container if is little
+			if (getData('image').w < settings.width
+					&& getData('image').h < settings.height) {
+				settings.image.snapToContainer = false;
+			}
+			calculateTranslationAndRotation();
+		},
+		calculateTranslationAndRotation: function(){
+			var rotacion = "";
+			var traslacion = "";
+			$(function() {
+				// console.log(imageData.id);
+				if ($.browser.msie) {
+					if ($.support.leadingWhitespace) {
+						rotacion = "rotate("
+								+ getData('image').rotation
+								+ "deg)";
+						$(image).css({
+							'msTransform' : rotacion,
+							'top' : getData('image').posY,
+							'left' : getData('image').posX
+						});
+
+					} else {
+						rotacion = getData('image').rotation;
+						$(image).css({
+							'rotation' : rotacion,
+							'top' : getData('image').posY,
+							'left' : getData('image').posX
+						});
+					}
+				} else {
+					rotacion = "rotate("
+							+ getData('image').rotation
+							+ ","
+							+ (getData('image').posX + (getData('image').w / 2))
+							+ ","
+							+ (getData('image').posY + (getData('image').h / 2))
+							+ ")";
+					traslacion = " translate("
+							+ getData('image').posX + ","
+							+ getData('image').posY + ")";
+					rotacion += traslacion;
+					$(image).attr("transform", rotacion);
+				}
+			});
+		},
+		createSelector: function(){
+			if (settings.selector.centered) {
+				getData('selector').y = (settings.height / 2)
+						- (getData('selector').h / 2);
+				getData('selector').x = (settings.width / 2)
+						- (getData('selector').w / 2);
+			}
+
+			selector = $('<div />')
+					.attr('id', self[0].id + '_selector')
+					.css(
+							{
+								'width' : getData('selector').w,
+								'height' : getData('selector').h,
+								'top' : getData('selector').y
+										+ 'px',
+								'left' : getData('selector').x
+										+ 'px',
+								'border' : '1px dashed '
+										+ settings.selector.borderColor,
+								'position' : 'absolute',
+								'cursor' : 'move'
+							})
+					.mouseover(
+							function() {
+								$(this)
+										.css(
+												{
+													'border' : '1px dashed '
+															+ settings.selector.borderColorHover
+												})
+							})
+					.mouseout(
+							function() {
+								$(this)
+										.css(
+												{
+													'border' : '1px dashed '
+															+ settings.selector.borderColor
+												})
+							});
+			// Aplicamos el drageo al selector
+			selector.draggable({
+						containment : 'parent',
+						iframeFix : true,
+						refreshPositions : true,
+						drag : function(event, ui) {
+							// Actualizamos las posiciones de la
+							// mascara
+							getData('selector').x = ui.position.left;
+							getData('selector').y = ui.position.top;
+							makeOverlayPositions(ui);
+							showInfo();
+							if (settings.selector.onSelectorDrag != null)
+								settings.selector.onSelectorDrag.apply(this,[$selector,getData('selector')]);
+						},
+						stop : function(event, ui) {
+							// Ocultar la mascara
+							if (settings.selector.hideOverlayOnDragAndResize)
+								hideOverlay();
+							if (settings.selector.onSelectorDragStop != null)
+								settings.selector.onSelectorDragStop.apply(this,[selector,getData('selector')]);
+						}
+					});
+			selector.resizable({
+						aspectRatio : settings.selector.aspectRatio,
+						maxHeight : settings.selector.maxHeight,
+						maxWidth : settings.selector.maxWidth,
+						minHeight : settings.selector.h,
+						minWidth : settings.selector.w,
+						containment : 'parent',
+						resize : function(event, ui) {
+							// Actualizamos las posiciones de la
+							// mascara
+							getData('selector').w = selector.width();
+							getData('selector').h = selector.height();
+							makeOverlayPositions(ui);
+							showInfo();
+							if (settings.selector.onSelectorResize != null)
+								settings.selector.onSelectorResize.apply(this,[selector,getData('selector')]);
+						},
+						stop : function(event, ui) {
+							if (settings.selector.hideOverlayOnDragAndResize)
+								hideOverlay();
+							if (settings.selector.onSelectorResizeStop != null)
+								settings.selector.onSelectorResizeStop.apply(this,[selector,getData('selector')]);
+						}
+					});
+
+			showInfo(selector);
+			self.append(selector);
+			// Cambiamos el resizable por un color solido
+			self.find('.ui-icon-gripsmall-diagonal-se').css({
+				'background' : '#FFF',
+				'border' : '1px solid #000',
+				'width' : 8,
+				'height' : 8
+			});
+		},
+		createOverlay: function(){
+			var arr = [ 't', 'b', 'l', 'r' ];
+			$.each(arr, function() {
+				var divO = $("<div />").attr("id", this).css({
+					'overflow' : 'hidden',
+					'background' : settings.overlayColor,
+					'opacity' : 0.6,
+					'position' : 'absolute',
+					'z-index' : 2,
+					'visibility' : 'visible'
+				});
+				self.append(divO);
+			});
+		}
+	}
+
+	$.fn.cropzoom = function(method) {
 
 		return this
 				.each(function() {
-
-					var _self = null;
-					var tMovement = null;
-
-					var $selector = null;
-					var $image = null;
-					var $svg = null;
-
-					var defaults = {
-						width : 500,
-						height : 375,
-						bgColor : '#000',
-						overlayColor : '#000',
-						selector : {
-							x : 0,
-							y : 0,
-							w : 229,
-							h : 100,
-							aspectRatio : false,
-							centered : false,
-							borderColor : 'yellow',
-							borderColorHover : 'red',
-							bgInfoLayer : '#FFF',
-							infoFontSize : 10,
-							infoFontColor : 'blue',
-							showPositionsOnDrag : true,
-							showDimetionsOnDrag : true,
-							maxHeight : null,
-							maxWidth : null,
-							startWithOverlay : false,
-							hideOverlayOnDragAndResize : true,
-							onSelectorDrag : null,
-							onSelectorDragStop : null,
-							onSelectorResize : null,
-							onSelectorResizeStop : null
-						},
-						image : {
-							source : '',
-							rotation : 0,
-							width : 0,
-							height : 0,
-							minZoom : 10,
-							maxZoom : 150,
-							startZoom : 0,
-							x : 0,
-							y : 0,
-							useStartZoomAsMinZoom : false,
-							snapToContainer : false,
-							onZoom : null,
-							onRotate : null,
-							onImageDrag : null
-						},
-						enableRotation : true,
-						enableZoom : true,
-						zoomSteps : 1,
-						rotationSteps : 5,
-						expose : {
-							slidersOrientation : 'vertical',
-							zoomElement : '',
-							rotationElement : '',
-							elementMovement : '',
-							movementSteps : 5
-						}
-					};
-
-					var $options = $.extend(true, defaults, options);
-					// Verificamos que esten los plugins necesarios
-					if (!$.isFunction($.fn.draggable)
-							|| !$.isFunction($.fn.resizable)
-							|| !$.isFunction($.fn.slider)) {
-						alert("You must include ui.draggable, ui.resizable and ui.slider to use cropZoom");
-						return;
-					}
-
-					if ($options.image.source == ''
-							|| $options.image.width == 0
-							|| $options.image.height == 0) {
-						alert('You must set the source, witdth and height of the image element');
-						return;
-					}
-
-					_self = $(this);
-					_self.empty();
-					_self.css({
-						'width' : $options.width,
-						'height' : $options.height,
-						'background-color' : $options.bgColor,
-						'overflow' : 'hidden',
-						'position' : 'relative',
-						'border' : '2px solid #333'
-					});
-
-					setData('image', {
-						h : $options.image.height,
-						w : $options.image.width,
-						posY : $options.image.y,
-						posX : $options.image.x,
-						scaleX : 0,
-						scaleY : 0,
-						rotation : $options.image.rotation,
-						source : $options.image.source,
-						bounds : [ 0, 0, 0, 0 ],
-						id : 'image_to_crop_' + _self[0].id
-					});
-
-					calculateFactor();
-					getCorrectSizes();
-
-					setData(
-							'selector',
-							{
-								x : $options.selector.x,
-								y : $options.selector.y,
-								w : ($options.selector.maxWidth != null ? ($options.selector.w > $options.selector.maxWidth ? $options.selector.maxWidth
-										: $options.selector.w)
-										: $options.selector.w),
-								h : ($options.selector.maxHeight != null ? ($options.selector.h > $options.selector.maxHeight ? $options.selector.maxHeight
-										: $options.selector.h)
-										: $options.selector.h)
-							});
-
-					if ($.browser.msie) {
-
-						// Add VML includes and namespace
-						_self[0].ownerDocument.namespaces
-								.add('v', 'urn:schemas-microsoft-com:vml',
-										"#default#VML");
-						// Add required css rules
-						var style = document.createStyleSheet();
-						style
-								.addRule('v\\:image',
-										"behavior: url(#default#VML);display:inline-block");
-						style.addRule('v\\:image', "antiAlias: false;");
-
-						$svg = $("<div />").attr("id", "k").css({
-							'width' : $options.width,
-							'height' : $options.height,
-							'position' : 'absolute'
-						});
-						if ($.support.leadingWhitespace) {
-							$image = document.createElement('img');
-						} else {
-							$image = document.createElement('v:image');
-						}
-						$image.setAttribute('src', $options.image.source);
-						$image.setAttribute('gamma', '0');
-
-						$($image).css({
-							'position' : 'absolute',
-							'left' : getData('image').posX,
-							'top' : getData('image').posY,
-							'width' : getData('image').w,
-							'height' : getData('image').h
-						});
-						$image.setAttribute('coordsize', '21600,21600');
-						$image.outerHTML = $image.outerHTML;
-
-						var ext = getExtensionSource();
-						if (ext == 'png' || ext == 'gif')
-							$image.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"
-									+ $options.image.source
-									+ "',sizingMethod='scale');";
-						$svg.append($image);
-
+					if (methods[method]) {
+						return methods[method].apply(this,
+								Array.prototype.slice.call(arguments, 1));
+					} else if (typeof method === 'object' || !method) {
+						return methods.init.apply(this, arguments);
 					} else {
-						$svg = _self[0].ownerDocument.createElementNS(
-								'http://www.w3.org/2000/svg', 'svg');
-						$svg.setAttribute('id', 'k');
-						$svg.setAttribute('width', $options.width);
-						$svg.setAttribute('height', $options.height);
-						$svg.setAttribute('preserveAspectRatio', 'none');
-						$image = _self[0].ownerDocument.createElementNS(
-								'http://www.w3.org/2000/svg', 'image');
-						$image.setAttributeNS('http://www.w3.org/1999/xlink',
-								'href', $options.image.source);
-						$image.setAttribute('width', getData('image').w);
-						$image.setAttribute('height', getData('image').h);
-						$image.setAttribute('preserveAspectRatio', 'none');
-						$($image).attr('x', 0);
-						$($image).attr('y', 0);
-						$svg.appendChild($image);
+						$.error('Method ' + method
+								+ ' does not exist on jQuery.myPlugin');
 					}
-					// $($image).data('container_id', _self[0].id);
-					_self.append($svg);
 
-					calculateTranslationAndRotation();
+					
 
-					// Bindear el drageo a la imagen a cortar
-					$($image).draggable({
-						refreshPositions : true,
-						start : function(event, ui) {
-							// calculateTranslationAndRotation();
-						},
-						drag : function(event, ui) {
-							getData('image').posY = ui.position.top;
-							getData('image').posX = ui.position.left;
-							if ($options.image.snapToContainer)
-								limitBounds(ui);
-							else
-								calculateTranslationAndRotation();
-							// Fire the callback
-							if ($options.image.onImageDrag != null)
-								$options.image.onImageDrag($image);
+					
 
-						},
-						stop : function(event, ui) {
-							if ($options.image.snapToContainer)
-								limitBounds(ui);
-						}
-					});
-
-					// Creamos el selector
-					createSelector();
-					// Cambiamos el resizable por un color solido
-					_self.find('.ui-icon-gripsmall-diagonal-se').css({
-						'background' : '#FFF',
-						'border' : '1px solid #000',
-						'width' : 8,
-						'height' : 8
-					});
-					// Creamos la Capa de oscurecimiento
-					createOverlay();
-
-					if ($options.selector.startWithOverlay) {
-						/* Make Overlays at Start */
-						var ui_object = {
-							position : {
-								top : $selector.position().top,
-								left : $selector.position().left
-							}
-						};
-						makeOverlayPositions(ui_object);
-					}
-					/* End Make Overlay at start */
+					
+					
+					
+					
 
 					// Creamos el Control de Zoom
 					if ($options.enableZoom)
@@ -302,109 +515,8 @@ THE SOFTWARE.
 					}
 					;
 
-					function calculateFactor() {
-						getData('image').scaleX = ($options.width / getData('image').w);
-						getData('image').scaleY = ($options.height / getData('image').h);
-					}
-					;
-
-					function getCorrectSizes() {
-						if ($options.image.startZoom != 0) {
-							var zoomInPx_width = (($options.image.width * Math
-									.abs($options.image.startZoom)) / 100);
-							var zoomInPx_height = (($options.image.height * Math
-									.abs($options.image.startZoom)) / 100);
-							getData('image').h = zoomInPx_height;
-							getData('image').w = zoomInPx_width;
-							//Checking if the position was set before
-							if (getData('image').posY != 0
-									&& getData('image').posX != 0) {
-								if (getData('image').h > $options.height)
-									getData('image').posY = Math
-											.abs(($options.height / 2)
-													- (getData('image').h / 2));
-								else
-									getData('image').posY = (($options.height / 2) - (getData('image').h / 2));
-								if (getData('image').w > $options.width)
-									getData('image').posX = Math
-											.abs(($options.width / 2)
-													- (getData('image').w / 2));
-								else
-									getData('image').posX = (($options.width / 2) - (getData('image').w / 2));
-							}
-						} else {
-							var scaleX = getData('image').scaleX;
-							var scaleY = getData('image').scaleY;
-							if (scaleY < scaleX) {
-								getData('image').h = $options.height;
-								getData('image').w = Math
-										.round(getData('image').w * scaleY);
-							} else {
-								getData('image').h = Math
-										.round(getData('image').h * scaleX);
-								getData('image').w = $options.width;
-							}
-						}
-
-						// Disable snap to container if is little
-						if (getData('image').w < $options.width
-								&& getData('image').h < $options.height) {
-							$options.image.snapToContainer = false;
-						}
-						calculateTranslationAndRotation();
-
-					}
-					;
-
-					function calculateTranslationAndRotation() {
-						var rotacion = "";
-						var traslacion = "";
-						$(function() {
-							// console.log(imageData.id);
-							if ($.browser.msie) {
-								if ($.support.leadingWhitespace) {
-									rotacion = "rotate("
-											+ getData('image').rotation
-											+ "deg)";/*
-														 * +
-														 * (getData('image').posX +
-														 * (getData('image').w /
-														 * 2 )) + "," +
-														 * (getData('image').posY +
-														 * (getData('image').h /
-														 * 2)) +
-														 */
-									$($image).css({
-										'msTransform' : rotacion,
-										'top' : getData('image').posY,
-										'left' : getData('image').posX
-									});
-
-								} else {
-									rotacion = getData('image').rotation;
-									$($image).css({
-										'rotation' : rotacion,
-										'top' : getData('image').posY,
-										'left' : getData('image').posX
-									});
-								}
-							} else {
-								rotacion = "rotate("
-										+ getData('image').rotation
-										+ ","
-										+ (getData('image').posX + (getData('image').w / 2))
-										+ ","
-										+ (getData('image').posY + (getData('image').h / 2))
-										+ ")";
-								traslacion = " translate("
-										+ getData('image').posX + ","
-										+ getData('image').posY + ")";
-								rotacion += traslacion;
-								$($image).attr("transform", rotacion);
-							}
-						});
-					}
-					;
+					
+					
 
 					function createRotationSlider() {
 
@@ -740,8 +852,10 @@ THE SOFTWARE.
 											});
 						}
 						if ($options.selector.showPositionsOnDrag) {
-							_infoView.html("X:" + Math.round(getData('selector').x)
-									+ "px - Y:" + Math.round(getData('selector').y) + "px");
+							_infoView.html("X:"
+									+ Math.round(getData('selector').x)
+									+ "px - Y:"
+									+ Math.round(getData('selector').y) + "px");
 							alreadyAdded = true;
 						}
 						if ($options.selector.showDimetionsOnDrag) {
@@ -1093,7 +1207,7 @@ THE SOFTWARE.
 	$.fn.extend({
 		// Function to set the selector position and sizes
 		setSelector : function(x, y, w, h, animate) {
-			
+
 			var _self = $(this);
 			if (animate != undefined && animate == true) {
 				_self.find('#' + _self[0].id + '_selector').animate({
@@ -1110,7 +1224,7 @@ THE SOFTWARE.
 					'height' : h
 				});
 			}
-			
+
 			_self.data('selector', {
 				x : x,
 				y : y,
@@ -1118,7 +1232,7 @@ THE SOFTWARE.
 				h : h
 			});
 			console.log(getData('selector'));
-			_self.showInfo(_self.find('#' + _self[0].id + '_selector'));
+
 		},
 		// Restore the Plugin
 		restore : function() {
