@@ -111,6 +111,7 @@ THE SOFTWARE.
 					}
 
 					_self = $(this);
+					setData('options',$options);
 					_self.empty();
 					_self.css({
 						'width' : $options.width,
@@ -948,9 +949,7 @@ THE SOFTWARE.
 					$.fn.cropzoom.getSelf = function() {
 						return _self;
 					}
-					$.fn.cropzoom.getOptions = function() {
-						return $options;
-					}
+					
 
 					// Maintein Chaining
 					return this;
@@ -1124,11 +1123,11 @@ THE SOFTWARE.
 		},
 		// Restore the Plugin
 		restore : function() {
-			var _self = $(this);
-			var $options = $(this).cropzoom.getOptions();
-			$(_self).empty();
-			$(_self).data('image', {});
-			$(_self).data('selector', {});
+			var obj = $(this);
+			var $options = obj.data('options');
+			obj.empty();
+			obj.data('image', {});
+			obj.data('selector', {});
 			if ($options.expose.zoomElement != "") {
 				$($options.expose.zoomElement).empty();
 			}
@@ -1138,7 +1137,7 @@ THE SOFTWARE.
 			if ($options.expose.elementMovement != "") {
 				$($options.expose.elementMovement).empty();
 			}
-			_self.cropzoom($options);
+			obj.cropzoom($options);
 
 		},
 		// Send the Data to the Server
