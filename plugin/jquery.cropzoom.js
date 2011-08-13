@@ -864,6 +864,8 @@ THE SOFTWARE.
 								moveImage(this);
 							}).mouseup(function() {
 								clearTimeout(tMovement);
+							}).mouseout(function(){
+								clearTimeout(tMovement);
 							});
 							table.find('td:eq(' + i + ')').append(btns[i]);
 							$($options.expose.elementMovement).append(table);
