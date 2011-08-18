@@ -101,16 +101,16 @@ div.crop_control_button:hover {
 	opacity: 0.8;
 }
 div.zoom_fill_btn {
-	background: url("../img/cropzoom/expand_all.png") no-repeat;
+	background: url("../images/expand_all.png") no-repeat;
 }
 div.zoom_fit_btn {
-	background: url("../img/cropzoom/expand_horizontal.png") no-repeat;
+	background: url("../images/expand_horizontal.png") no-repeat;
 }
 div.zoom_fit_height_btn {
-	background: url("../img/cropzoom/expand_vertical.png") no-repeat;
+	background: url("../images/expand_vertical.png") no-repeat;
 }
 div.zoom_fit_width_btn {
-	background: url("../img/cropzoom/expand_horizontal.png") no-repeat;
+	background: url("../images/expand_horizontal.png") no-repeat;
 }
 
 .rotationMin.horizontal,#rotationMax.horizontal{color:#000;font:300 12px Arial;margin:2px 4px;float:left;text-align:center}
@@ -118,7 +118,7 @@ div.zoom_fit_width_btn {
 .rotationContainer.horizontal{background-color:#FFF;z-index:3;width:auto;}
 
 .mvn_corner {display: none}
-.mvn{background: url(../img/cropzoom/movement.png) no-repeat;width:21px;height:21px;}
+.mvn{background: url(../images/movement.png) no-repeat;width:21px;height:21px;}
 .mvn:hover{cursor:pointer;}
 .mvn_no{background-position:0px 0px;}
 .mvn_n{background-position:0px -21px;}
