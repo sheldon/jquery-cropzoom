@@ -149,21 +149,7 @@ THE SOFTWARE.
 	            heigt : (cropzoom.settings.selector.maxHeight != null ? (cropzoom.settings.selector.height > cropzoom.settings.selector.maxHeight ? cropzoom.settings.selector.maxHeight : cropzoom.settings.selector.height) : cropzoom.settings.selector.height)
 	        };
 	        
-	        if(!$.browser.msie){
-	            cropzoom.$svg = cropzoom.$element[0].ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'svg');
-	            cropzoom.$svg.setAttribute('id', 'k');
-	            cropzoom.$svg.setAttribute('width', cropzoom.settings.width);
-	            cropzoom.$svg.setAttribute('height', cropzoom.settings.height);
-	            cropzoom.$svg.setAttribute('preserveAspectRatio', 'none');
-	            cropzoom.$image = cropzoom.$element[0].ownerDocument.createElementNS('http://www.w3.org/2000/svg','image');
-	            cropzoom.$image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', cropzoom.settings.image.source);
-	            cropzoom.$image.setAttribute('width', cropzoom.image_data.width);
-	            cropzoom.$image.setAttribute('height', cropzoom.image_data.height);
-	            cropzoom.$image.setAttribute('preserveAspectRatio', 'none');
-	            $(cropzoom.$image).attr('x', 0);
-	            $(cropzoom.$image).attr('y', 0);
-	            cropzoom.$svg.appendChild(cropzoom.$image);
-	        }else{
+			if($.browser.msie){
 	            // Add VML includes and namespace
 	            cropzoom.$element[0].ownerDocument.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML");
 	            // Add required css rules
@@ -176,7 +162,11 @@ THE SOFTWARE.
 	                height: cropzoom.settings.height,
 	                position: 'absolute' 
 	            });
-	            cropzoom.$image = document.createElement('v:image');
+	            if($.support.leadingWhitespace){
+	            	cropzoom.$image = document.createElement('img');
+	            } else {
+	            	cropzoom.$image = document.createElement('v:image');
+	            }
 	            cropzoom.$image.setAttribute('src',cropzoom.settings.image.source);
 	            cropzoom.$image.setAttribute('gamma','0');
 	            
@@ -193,7 +183,21 @@ THE SOFTWARE.
 	            var ext = getExtensionSource();
 	            if(ext == 'png' || ext == 'gif')
 	                cropzoom.$image.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+cropzoom.settings.image.source+"',sizingMethod='scale');"; 
-	            cropzoom.$svg.append(cropzoom.$image);   
+	            cropzoom.$svg.append(cropzoom.$image);
+	        }else{
+	            cropzoom.$svg = cropzoom.$element[0].ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	            cropzoom.$svg.setAttribute('id', 'k');
+	            cropzoom.$svg.setAttribute('width', cropzoom.settings.width);
+	            cropzoom.$svg.setAttribute('height', cropzoom.settings.height);
+	            cropzoom.$svg.setAttribute('preserveAspectRatio', 'none');
+	            cropzoom.$image = cropzoom.$element[0].ownerDocument.createElementNS('http://www.w3.org/2000/svg','image');
+	            cropzoom.$image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', cropzoom.settings.image.source);
+	            cropzoom.$image.setAttribute('width', cropzoom.image_data.width);
+	            cropzoom.$image.setAttribute('height', cropzoom.image_data.height);
+	            cropzoom.$image.setAttribute('preserveAspectRatio', 'none');
+	            $(cropzoom.$image).attr('x', 0);
+	            $(cropzoom.$image).attr('y', 0);
+	            cropzoom.$svg.appendChild(cropzoom.$image);
 	        }
 	        cropzoom.$element.append(cropzoom.$svg);  
 	
@@ -537,11 +541,18 @@ THE SOFTWARE.
 	            var zoomInPx_height =  ((cropzoom.settings.image.height * Math.abs(cropzoom.settings.image.startZoom)) / 100);
 	            cropzoom.image_data.height = zoomInPx_height;
 	            cropzoom.image_data.width = zoomInPx_width;
-	            cropzoom.image_data.left = ((cropzoom.settings.width / 2) - (cropzoom.image_data.width / 2));
-	            cropzoom.image_data.top = ((cropzoom.settings.height / 2) - (cropzoom.image_data.height/ 2));
+	            if(cropzoom.image_data.height > cropzoom.settings.height)
+		            cropzoom.image_data.top = Math.abs((cropzoom.settings.height / 2) - (cropzoom.image_data.height / 2));
+		        else
+		            cropzoom.image_data.top = ((cropzoom.settings.height / 2) - (cropzoom.image_data.height / 2));
+		            
+	            if(cropzoom.image_data.width > cropzoom.settings.width)
+		            cropzoom.image_data.left = Math.abs((cropzoom.settings.width / 2) - (cropzoom.image_data.width / 2));
+		        else
+		            cropzoom.image_data.left = ((cropzoom.settings.width / 2) - (cropzoom.image_data.width / 2));
 	        }else{
-	            cropzoom.image_data.left = ((cropzoom.settings.width / 2) - (cropzoom.image_data.width / 2));
-	            cropzoom.image_data.top = ((cropzoom.settings.height / 2) - (cropzoom.image_data.height/ 2));
+	            cropzoom.image_data.left = 0;
+	            cropzoom.image_data.top = 0;
 	            var scaleX = cropzoom.image_data.scaleX;
 	            var scaleY = cropzoom.image_data.scaleY;
 	            if(scaleY < scaleX){
@@ -1079,12 +1090,22 @@ THE SOFTWARE.
 	        $(function(){
 	            // console.log(imageData.id);
 	            if($.browser.msie){
-	                rotation = cropzoom.image_data.rotation;
-	                $(cropzoom.$image).css({
-	                    'rotation': rotation,
-	                    'top': cropzoom.image_data.top,
-	                    'left': cropzoom.image_data.left
-	                });
+	            	if($.support.leadingWhitespace){
+		                rotation = "rotate(" + cropzoom.image_data.rotation + "deg)";
+		                /* + (getData('image').posX + (getData('image').w / 2 )) + "," + (getData('image').posY + (getData('image').h / 2)) +*/
+		                $(cropzoom.$image).css({
+		                    'msTransform': rotation,
+		                    'top': cropzoom.image_data.top,
+		                    'left': cropzoom.image_data.left
+		                });
+	            	} else {
+		                rotation = cropzoom.image_data.rotation;
+		                $(cropzoom.$image).css({
+		                    'rotation': rotation,
+		                    'top': cropzoom.image_data.top,
+		                    'left': cropzoom.image_data.left
+		                });
+	            	}
 	            }else{
 	                rotation = "rotate(" + cropzoom.image_data.rotation + "," + (cropzoom.image_data.left + (cropzoom.image_data.width / 2 )) + "," + (cropzoom.image_data.top + (cropzoom.image_data.height / 2))  + ")";    
 	                translation = " translate(" + cropzoom.image_data.left + "," + cropzoom.image_data.top + ")"; 
