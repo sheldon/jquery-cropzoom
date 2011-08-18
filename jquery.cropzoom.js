@@ -984,6 +984,9 @@ THE SOFTWARE.
 				}).mouseup(function(){
 					clearTimeout(tMovement);
 					move_timeout = 500;
+				}).mouseout(function(){
+					clearTimeout(tMovement);
+					move_timeout = 500;
 				});
 				table.find('td:eq('+i+')').append(btns[i]);
 			}
