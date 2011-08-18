@@ -1,0 +1,141 @@
+.cz-main-window {
+	background: #ccc;
+	overflow: hidden;
+	position: relative;
+	border: 2px solid #333;
+}
+
+.cz-main-window .ui-icon-gripsmall-diagonal-se {
+	background: #FFF;
+	border: 1px solid #000;
+	width: 8px;
+	height: 8px;
+}
+.cz-main-window .cz-selector {
+	cursor: move;
+	border: 1px dashed yellow;
+	position: absolute;
+}
+.cz-main-window .cz-selector:hover {
+	border-color: red;
+}
+.cz-main-window .cz-info-view {
+	background: #fff;
+	opacity: 0.6;
+	font-size: 10px;
+	color: blue;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
+.cz-main-window .cz-overlay {
+	overflow: hidden;
+	background: #000;
+	opacity: 0.6;
+	position: absolute;
+	z-index: 2;
+	visibility: visible;
+}
+.cz-zoom-slider, .cz-rotation-slider {
+}
+.cz-zoom-slider:hover, .cz-rotation-slider:hover {
+	opacity: 0.8;
+}
+
+.cz-main-window .ui-draggable {
+	cursor: move;
+}
+
+div.cz-zoom-slider {
+	position: absolute;
+	left: 10px;
+	bottom: 10px;
+	z-index: 100;
+	opacity: 0.6;
+}
+/* Vertical */
+.zoomMin.vertical, .zoomMax.vertical{ color:#000; font:700 14px Arial; margin:auto; width:100%; text-align:center; }
+.zoomSlider.vertical{ margin: 7px auto; height: 200px; width:6px; position:relative; }
+.cz-zoom-slider.vertical{ background-color:#fff; width:31px; }
+.zoomSlider.vertical.ui-widget-content{ background: #000; opacity: 0.8; }
+
+.rotationMin.vertical, .rotationMax.vertical{ color:#000; font:700 14px Arial; margin:auto; width:100%; text-align:center; }
+.rotationSlider.vertical{ margin: 7px auto; height: 150px; width:6px; position:relative; }
+.rotationContainer.vertical{ background-color:#fff; width:31px; height: 200px; }
+
+/* Horizontal */
+.zoomMin.horizontal, .zoomMax.horizontal{ color:#000; font:300 12px Arial; margin:2px 3px; padding:0 5px; float:left; text-align:center }
+.zoomSlider.horizontal{ margin: 7px auto; height: 6px; width: 300px; float: left; position: relative }
+.zoomSlider.horizontal .ui-slider-handle { height: 11px; cursor: move; }
+.cz-zoom-slider.horizontal{ background-color:#fff; width: auto; }
+
+div.image_crop_wrapper {
+	position: relative;
+}
+
+div.cz-movement {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	z-index: 100;
+}
+
+div.cropzoom-controls {
+	z-index: 100;
+}
+
+div.cz-image-size-controls {
+	overflow: auto;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+}
+div.crop_control_button {
+	height: 40px;
+	width: 40px;
+	cursor: pointer;
+	float: left;
+}
+div.crop_control_button:hover {
+	opacity: 0.8;
+}
+div.zoom_fill_btn {
+	background: url("../img/cropzoom/expand_all.png") no-repeat;
+}
+div.zoom_fit_btn {
+	background: url("../img/cropzoom/expand_horizontal.png") no-repeat;
+}
+div.zoom_fit_height_btn {
+	background: url("../img/cropzoom/expand_vertical.png") no-repeat;
+}
+div.zoom_fit_width_btn {
+	background: url("../img/cropzoom/expand_horizontal.png") no-repeat;
+}
+
+.rotationMin.horizontal,#rotationMax.horizontal{color:#000;font:300 12px Arial;margin:2px 4px;float:left;text-align:center}
+.rotationSlider.horizontal{margin: 7px 5px;height: 6px;width:300px;float:left;position:relative}
+.rotationContainer.horizontal{background-color:#FFF;z-index:3;width:auto;}
+
+.mvn_corner {display: none}
+.mvn{background: url(../img/cropzoom/movement.png) no-repeat;width:21px;height:21px;}
+.mvn:hover{cursor:pointer;}
+.mvn_no{background-position:0px 0px;}
+.mvn_n{background-position:0px -21px;}
+.mvn_ne{background-position:0px -42px; }
+.mvn_o{background-position:0px -63px;}
+.mvn_c{background-position:0px -168px;}
+.mvn_e{background-position:0px -84px;}
+.mvn_so{background-position:0px -105px}
+.mvn_s{background-position:0px -126px;}
+.mvn_se{background-position:0px -147px;}
+.mvn_no:hover{background-position:100% 0px ;}
+.mvn_n:hover{background-position:100% -21px ;}
+.mvn_ne:hover{background-position:100% -42px;}
+.mvn_o:hover{background-position:100% -63px;}
+.mvn_c:hover{background-position:100% -168px;}
+.mvn_e:hover{background-position:100% -84px;}
+.mvn_so:hover{background-position:100% -105px;}
+.mvn_s:hover{background-position:100% -126px;}
+.mvn_se:hover{background-position:100% -147px;} 
+
