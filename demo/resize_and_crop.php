@@ -41,7 +41,7 @@ if($_POST["imageRotate"]){
 
 
 
-$dst_x = $src_x = $dst_y = $dst_x = 0;
+$dst_x = $src_x = $dst_y = $src_y = 0;
 
 if($_POST["imageX"] > 0){
 	$dst_x = abs($_POST["imageX"]);
