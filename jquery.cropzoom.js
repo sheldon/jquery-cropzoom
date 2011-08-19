@@ -69,6 +69,15 @@ THE SOFTWARE.
 				onRotate: null,
 				onImageDrag: null
 			},
+			enableOverlayImage: false,
+			overlayImage: {
+				imageSource: "",
+				top: 0,
+				left: 0,
+				height: 0,
+				width: 0,
+				matchSelector: true
+			},
 			enableRotation: true,
 			enableZoom: true,
 			enableMovement: true,
@@ -248,7 +257,7 @@ THE SOFTWARE.
 			if(cropzoom.settings.selector.locked)
 				cropzoom.lockSelector();
 			if(cropzoom.settings.selector.heightidden)
-				cropzoom.$selector.heightide();
+				cropzoom.$selector.hide();
 	
 			//Creamos el Control de Zoom 
 			if(cropzoom.settings.enableZoom) 
@@ -750,7 +759,6 @@ THE SOFTWARE.
 			}
 	
 			cropzoom.$selector = $('<div />').attr('id',cropzoom.$element[0].id + '_selector').css({
-				position: "absolute",
 				width: cropzoom.selector_data.width,
 				height: cropzoom.selector_data.height,
 				top: cropzoom.selector_data.top + 'px',
@@ -764,7 +772,7 @@ THE SOFTWARE.
 				iframeFix: true,
 				refreshPositions: true,
 				start: function(event,ui){
-					if(cropzoom.settings.selector.heightideOverlayOnDragAndResize && !cropzoom.settings.selector.heightideOverlay)
+					if(cropzoom.settings.selector.hideOverlayOnDragAndResize && !cropzoom.settings.selector.hideOverlay)
 						showOverlay();
 				},
 				drag: function(event,ui){
@@ -779,7 +787,7 @@ THE SOFTWARE.
 				},
 				stop: function(event,ui){
 					//Ocultar la mascara
-					if(cropzoom.settings.selector.heightideOverlayOnDragAndResize)
+					if(cropzoom.settings.selector.hideOverlayOnDragAndResize)
 						hideOverlay();
 					if(cropzoom.settings.selector.onSelectorDragStop != null)
 						cropzoom.settings.selector.onSelectorDragStop(cropzoom.$selector, cropzoom.selector_data);
@@ -797,7 +805,7 @@ THE SOFTWARE.
 				minWidth: cropzoom.settings.selector.width,
 				containment: 'parent', 
 				start: function(event,ui){
-					if(cropzoom.settings.selector.heightideOverlayOnDragAndResize && !cropzoom.settings.selector.heightideOverlay)
+					if(cropzoom.settings.selector.hideOverlayOnDragAndResize && !cropzoom.settings.selector.hideOverlay)
 						showOverlay();
 				},
 				resize: function(event,ui){
@@ -810,7 +818,7 @@ THE SOFTWARE.
 						cropzoom.settings.selector.onSelectorResize(cropzoom.$selector,cropzoom.selector_data); 
 				},
 				stop:function(event,ui){
-					if(cropzoom.settings.selector.heightideOverlayOnDragAndResize)
+					if(cropzoom.settings.selector.hideOverlayOnDragAndResize)
 						hideOverlay();
 					if(cropzoom.settings.selector.onSelectorResizeStop != null)
 						cropzoom.settings.selector.onSelectorResizeStop(cropzoom.$selector,cropzoom.selector_data);
@@ -876,68 +884,109 @@ THE SOFTWARE.
 		};
 	
 		var createOverlay = function(){
+			var arr =['t cz-overlay', 'b cz-overlay', 'l cz-overlay', 'r cz-overlay'];
 			if(cropzoom.settings.selector.passThroughBorder)
-				var arr =['t', 'b', 'l', 'r', 't-border', 'b-border', 'l-border', 'r-border'];
-			else
-				var arr =['t', 'b', 'l', 'r'];
+				arr.push('t-border overlay-border', 'b-border overlay-border', 'l-border overlay-border', 'r-border overlay-border');
+			if(cropzoom.settings.enableOverlayImage && cropzoom.settings.overlayImage.imageSource != "")
+				arr.push('t-image overlay-image', 'b-image overlay-image', 'l-image overlay-image', 'r-image overlay-image');
+				
 			$.each(arr,function(){
 				var overlay = $("<div />").attr("class",this);
-				overlay.addClass("cz-overlay");
 				cropzoom.$element.append(overlay);  
 			});
+			if(cropzoom.settings.enableOverlayImage && cropzoom.settings.overlayImage.imageSource != "")
+				$(".overlay-image").css("background-image", cropzoom.settings.overlayImage.imageSource);
 		};
 	
 		var setOverlayPositions = function(){
-			if(!cropzoom.settings.selector.heightideOverlay)
+			if(!cropzoom.settings.selector.hideOverlay)
 				showOverlay();
 			cropzoom.$element.find("div.cz-overlay.t").css({
-				"width": cropzoom.settings.width,
-				'height': cropzoom.selector_data.top,
-				'left': 0,
-				'top':0
+				width: cropzoom.settings.width,
+				height: cropzoom.selector_data.top,
+				left: 0,
+				top:0
 			});
 			cropzoom.$element.find("div.cz-overlay.b").css({
-				"width": cropzoom.settings.width,
-				'height': cropzoom.settings.height - (cropzoom.selector_data.top + cropzoom.selector_data.height),
-				'top': (cropzoom.selector_data.top + cropzoom.selector_data.height) + "px",
-				'left': 0
+				width: cropzoom.settings.width,
+				height: cropzoom.settings.height - (cropzoom.selector_data.top + cropzoom.selector_data.height),
+				top: (cropzoom.selector_data.top + cropzoom.selector_data.height) + "px",
+				left: 0
 			});
 			cropzoom.$element.find("div.cz-overlay.l").css({
-				'left': 0,
-				'top': cropzoom.selector_data.top,
-				'width': cropzoom.selector_data.left,
-				'height': cropzoom.selector_data.height
+				left: 0,
+				top: cropzoom.selector_data.top,
+				width: cropzoom.selector_data.left,
+				height: cropzoom.selector_data.height
 			});
 			cropzoom.$element.find("div.cz-overlay.r").css({
-				'top': cropzoom.selector_data.top,
-				'left': (cropzoom.selector_data.left + cropzoom.selector_data.width) + "px",
-				'width': cropzoom.settings.width - (cropzoom.selector_data.left + cropzoom.selector_data.width),
-				'height': cropzoom.selector_data.height + "px"
+				top: cropzoom.selector_data.top,
+				left: (cropzoom.selector_data.left + cropzoom.selector_data.width) + "px",
+				width: cropzoom.settings.width - (cropzoom.selector_data.left + cropzoom.selector_data.width),
+				height: cropzoom.selector_data.height + "px"
 			});
+			
+			if(cropzoom.settings.enableOverlayImage && cropzoom.settings.overlayImage.imageSource != ""){
+				if(cropzoom.settings.overlayImage.matchSelector){
+					cropzoom.settings.overlayImage.top = cropzoom.selector_data.top;
+					cropzoom.settings.overlayImage.left = cropzoom.selector_data.left;
+					cropzoom.settings.overlayImage.height = cropzoom.selector_data.height;
+					cropzoom.settings.overlayImage.width = cropzoom.selector_data.width;
+				}
+				cropzoom.$element.find("div.cz-overlay.t-image").css({
+					width: cropzoom.settings.width,
+					height: cropzoom.overlayImage.top,
+					left: 0,
+					top:0,
+					backgroundPosition: "0px 0px"
+				});
+				cropzoom.$element.find("div.cz-overlay.b-image").css({
+					width: cropzoom.settings.width,
+					height: cropzoom.settings.height - (cropzoom.overlayImage.top + cropzoom.overlayImage.height),
+					top: (cropzoom.overlayImage.top + cropzoom.overlayImage.height) + "px",
+					left: 0,
+					backgroundPosition: "0px " + (cropzoom.overlayImage.top + cropzoom.overlayImage.height) + "px"
+				});
+				cropzoom.$element.find("div.cz-overlay.l-image").css({
+					left: 0,
+					top: cropzoom.overlayImage.top,
+					width: cropzoom.overlayImage.left,
+					height: cropzoom.overlayImage.height,
+					backgroundPosition: "0px " + cropzoom.overlayImage.top + "px"
+				});
+				cropzoom.$element.find("div.cz-overlay.r-image").css({
+					top: cropzoom.overlayImage.top,
+					left: (cropzoom.overlayImage.left + cropzoom.overlayImage.width) + "px",
+					width: cropzoom.settings.width - (cropzoom.overlayImage.left + cropzoom.overlayImage.width),
+					height: cropzoom.overlayImage.height + "px",
+					backgroundPosition: (cropzoom.overlayImage.left + cropzoom.overlayImage.width) + "px " + cropzoom.overlayImage.top + "px"
+				});
+			}
+			
 			if(cropzoom.settings.selector.passThroughBorder){
 				cropzoom.$element.find("div.cz-overlay.t-border").css({
-					"width": cropzoom.selector_data.width,
-					'height': cropzoom.selector_data.top,
-					'left': cropzoom.selector_data.left,
-					'top':0
+					width: cropzoom.selector_data.width,
+					height: cropzoom.selector_data.top,
+					left: cropzoom.selector_data.left,
+					top:0
 				});
 				cropzoom.$element.find("div.cz-overlay.b-border").css({
-					"width": cropzoom.selector_data.width,
-					'height': cropzoom.settings.height - (cropzoom.selector_data.top + cropzoom.selector_data.height),
-					'top': (cropzoom.selector_data.top + cropzoom.selector_data.height - 1) + "px",
-					'left': cropzoom.selector_data.left
+					width: cropzoom.selector_data.width,
+					height: cropzoom.settings.height - (cropzoom.selector_data.top + cropzoom.selector_data.height),
+					top: (cropzoom.selector_data.top + cropzoom.selector_data.height - 1) + "px",
+					left: cropzoom.selector_data.left
 				});
 				cropzoom.$element.find("div.cz-overlay.l-border").css({
-					'left': 0,
-					'top': cropzoom.selector_data.top,
-					'width': cropzoom.selector_data.left,
-					'height': cropzoom.selector_data.height
+					left: 0,
+					top: cropzoom.selector_data.top,
+					width: cropzoom.selector_data.left,
+					height: cropzoom.selector_data.height
 				});
 				cropzoom.$element.find("div.cz-overlay.r-border").css({
-					'top': cropzoom.selector_data.top,
-					'left': (cropzoom.selector_data.left + cropzoom.selector_data.width - 1) + "px",
-					'width': cropzoom.settings.width - (cropzoom.selector_data.left + cropzoom.selector_data.width),
-					'height': cropzoom.selector_data.height + "px"
+					top: cropzoom.selector_data.top,
+					left: (cropzoom.selector_data.left + cropzoom.selector_data.width - 1) + "px",
+					width: cropzoom.settings.width - (cropzoom.selector_data.left + cropzoom.selector_data.width),
+					height: cropzoom.selector_data.height + "px"
 				});
 			}
 		};
