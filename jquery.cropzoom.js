@@ -86,6 +86,7 @@ THE SOFTWARE.
 			zoomSteps: 1,
 			rotationSteps: 5,
 			movementSteps: 5,
+			singleMovementSteps: 1,
 			movementSpeed: 100,
 			controls: {
 				orientation: 'vertical',
@@ -112,11 +113,11 @@ THE SOFTWARE.
 		cropzoom.image_data = {};
 		
 		var move_timeout = 500;		// Initial timeout for move
+		var move_steps = cropzoom.settings.singleMovementSteps;
+		var tMovement = null;
 		
 		cropzoom.init = function(options) {
 	
-			var tMovement = null;
-		
 			cropzoom.settings = $.extend(true, defaults, options);
 	
 			// Verify plugin dependencies
@@ -1034,9 +1035,12 @@ THE SOFTWARE.
 				}).mouseup(function(){
 					clearTimeout(tMovement);
 					move_timeout = 500;
+					move_steps = cropzoom.settings.singleMovementSteps;
 				}).mouseout(function(){
-					clearTimeout(tMovement);
+					if(tMovement != null)
+						clearTimeout(tMovement);
 					move_timeout = 500;
+					move_steps = cropzoom.settings.singleMovementSteps;
 				});
 				table.find('td:eq('+i+')').append(btns[i]);
 			}
@@ -1056,28 +1060,28 @@ THE SOFTWARE.
 			var newX = cropzoom.image_data.left;
 			var newY = cropzoom.image_data.top;
 			if($(obj).hasClass('mvn_no')){
-				newX = (cropzoom.image_data.left - cropzoom.settings.movementSteps);
-				newY = (cropzoom.image_data.top - cropzoom.settings.movementSteps);
+				newX = (cropzoom.image_data.left - move_steps);
+				newY = (cropzoom.image_data.top - move_steps);
 			}else if($(obj).hasClass('mvn_n')){
-				newY = (cropzoom.image_data.top - cropzoom.settings.movementSteps);
+				newY = (cropzoom.image_data.top - move_steps);
 			}else if($(obj).hasClass('mvn_ne')){
-				newX = (cropzoom.image_data.left + cropzoom.settings.movementSteps);
-				newY = (cropzoom.image_data.top - cropzoom.settings.movementSteps);
+				newX = (cropzoom.image_data.left + move_steps);
+				newY = (cropzoom.image_data.top - move_steps);
 			}else if($(obj).hasClass('mvn_o')){
-				newX = (cropzoom.image_data.left - cropzoom.settings.movementSteps); 
+				newX = (cropzoom.image_data.left - move_steps); 
 			}else if($(obj).hasClass('mvn_c')){
 				newX = (cropzoom.settings.width/2)-(cropzoom.image_data.width/2);
 				newY = (cropzoom.settings.height/2)-(cropzoom.image_data.height/2);
 			}else if($(obj).hasClass('mvn_e')){
-				newX = (cropzoom.image_data.left + cropzoom.settings.movementSteps);
+				newX = (cropzoom.image_data.left + move_steps);
 			}else if($(obj).hasClass('mvn_so')){
-				newX = (cropzoom.image_data.left - cropzoom.settings.movementSteps);
-				newY = (cropzoom.image_data.top + cropzoom.settings.movementSteps);
+				newX = (cropzoom.image_data.left - move_steps);
+				newY = (cropzoom.image_data.top + move_steps);
 			}else if($(obj).hasClass('mvn_s')){
-				newY = (cropzoom.image_data.top + cropzoom.settings.movementSteps);
+				newY = (cropzoom.image_data.top + move_steps);
 			}else if($(obj).hasClass('mvn_se')){
-				newX = (cropzoom.image_data.left + cropzoom.settings.movementSteps);
-				newY = (cropzoom.image_data.top + cropzoom.settings.movementSteps);
+				newX = (cropzoom.image_data.left + move_steps);
+				newY = (cropzoom.image_data.top + move_steps);
 			}
 			
 			if(cropzoom.settings.image.snapToContainer) {
@@ -1094,6 +1098,7 @@ THE SOFTWARE.
 				moveImage(obj);
 			}, move_timeout);
 			move_timeout = cropzoom.settings.movementSpeed;
+			move_steps = cropzoom.settings.movementSteps;
 		};
 		
 		var createImageMatchControls = function(){
