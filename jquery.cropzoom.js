@@ -51,7 +51,7 @@ THE SOFTWARE.
 				onSelectorResize: null,
 				onSelectorResizeStop: null,
 				locked: false,
-				passThroughBorder: false
+				enablePassThroughBorder: false
 			},
 			image: {
 				source: '',
@@ -65,6 +65,7 @@ THE SOFTWARE.
 				startZoom: 0,
 				useStartZoomAsMinZoom: false,
 				snapToContainer: false,
+				constrainToSelector: false,
 				onZoom: null,
 				onRotate: null,
 				onImageDrag: null
@@ -885,7 +886,7 @@ THE SOFTWARE.
 	
 		var createOverlay = function(){
 			var arr =['t cz-overlay', 'b cz-overlay', 'l cz-overlay', 'r cz-overlay'];
-			if(cropzoom.settings.selector.passThroughBorder)
+			if(cropzoom.settings.selector.enablePassThroughBorder)
 				arr.push('t-border overlay-border', 'b-border overlay-border', 'l-border overlay-border', 'r-border overlay-border');
 			if(cropzoom.settings.enableOverlayImage && cropzoom.settings.overlayImage.imageSource != "")
 				arr.push('t-image overlay-image', 'b-image overlay-image', 'l-image overlay-image', 'r-image overlay-image');
@@ -963,7 +964,7 @@ THE SOFTWARE.
 				});
 			}
 			
-			if(cropzoom.settings.selector.passThroughBorder){
+			if(cropzoom.settings.selector.enablePassThroughBorder){
 				cropzoom.$element.find("div.cz-overlay.t-border").css({
 					width: cropzoom.selector_data.width,
 					height: cropzoom.selector_data.top,
