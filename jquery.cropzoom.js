@@ -454,6 +454,9 @@ THE SOFTWARE.
 				if(undefined != options.center && options.center) {
 					cropzoom.image_data.left = options.left + Math.round((cropzoom.settings.width - options.width) / 2);
 					cropzoom.image_data.top = options.top + Math.round((cropzoom.settings.height - options.height) / 2);
+				} else if(undefined != options.left && undefined != options.top) {
+					cropzoom.image_data.left = options.left;
+					cropzoom.image_data.top = options.top;
 				} else {
 					cropzoom.image_data.left = cropzoom.image_data.left + ((old_width - cropzoom.image_data.width) / 2);
 					cropzoom.image_data.top = cropzoom.image_data.top + ((old_height - cropzoom.image_data.height) / 2);
@@ -505,16 +508,18 @@ THE SOFTWARE.
 		};
 		
 		//Send the Data to the Server
-		cropzoom.send = function(url, type, custom, onSuccess){
+		cropzoom.send = function(options){
 			var response = "";
+			if(undefined != options.custom)
+				options.custom = {};
 			$.ajax({
-				url : url,
-				type: type,
-				data: (getParameters(custom)),
+				url : options.url,
+				type: options.type,
+				data: (getParameters(options.custom)),
 				success:function(r){ 
-					cropzoom.$element.data('imageResult',r);
-					if(onSuccess !== undefined && onSuccess != null)
-						onSuccess(r);
+					cropzoom.$element.data('imageResult', r);
+					if(options.onSuccess !== undefined && options.onSuccess != null)
+						options.onSuccess(r);
 				}
 			});
 		};
@@ -1175,8 +1180,8 @@ THE SOFTWARE.
 	
 		var getParameters = function(custom){
 			var fixed_data = {
-				'viewPortW': cropzoom.$element.width(),
-				'viewPortH': cropzoom.$element.height(),
+				'viewPortW': cropzoom.settings.width,
+				'viewPortH': cropzoom.settings.height,
 				'imageX': cropzoom.image_data.left,
 				'imageY': cropzoom.image_data.top,
 				'imageRotate': cropzoom.image_data.rotation,
@@ -1198,29 +1203,28 @@ THE SOFTWARE.
 	$.fn.cropzoom = function(options){
 		// cache the arguments
 		args = Array.prototype.slice.call(arguments, 1);
-		this.each(function(){
-			if(undefined == $(this).data("cropzoom") && (typeof options === "object" || ! options)) {
-				// create a new instance of cropzoom
-				var cropzoom = new $.cropzoom(this, options);
-				// in the jQuery version of the element
-				// store a reference to the plugin object
-				// you can later access the plugin and its methods and properties like
-				// element.data('pluginName').publicMethod(arg1, arg2, ... argn) or
-				// element.data('pluginName').settings.propertyName
-				$(this).data("cropzoom", cropzoom);
-				// chainability
-				return this;
-				
-			} else if(undefined != $(this).data("cropzoom")[options]){
-				// reload state from the element
-				var cropzoom = $(this).data("cropzoom");
-				// call public functions as $(element).cropzoom("publicFunction", args)
-				return cropzoom[options].apply(this, args);
-			} else {
-				$.error("Method " +  options + " does not exist in jQuery.cropzoom");
-				return this;
-			}
-		});
+		if(undefined != $(this).data("cropzoom") && undefined != $(this).data("cropzoom")[options]){
+			// reload state from the element
+			var cropzoom = $(this).data("cropzoom");
+			// call public functions as $(element).cropzoom("publicFunction", args)
+			return cropzoom[options].apply(this, args);
+		} else {
+			return this.each(function(){
+				if(undefined == $(this).data("cropzoom") && (typeof options === "object" || ! options)) {
+					// create a new instance of cropzoom
+					var cropzoom = new $.cropzoom(this, options);
+					// in the jQuery version of the element
+					// store a reference to the plugin object
+					// you can later access the plugin and its methods and properties like
+					// element.data('pluginName').publicMethod(arg1, arg2, ... argn) or
+					// element.data('pluginName').settings.propertyName
+					$(this).data("cropzoom", cropzoom);
+					
+				} else {
+					$.error("Method " +  options + " does not exist in jQuery.cropzoom");
+				}
+			});
+		}
 	};
 	
 	/*Code taken from jquery.svgdom.js */
