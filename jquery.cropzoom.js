@@ -598,6 +598,8 @@ THE SOFTWARE.
 				];
 				$(cropzoom.$image).draggable("option", "containment", cropzoom.image_data.containment);
 			}
+			// Fix for select cursor when dragging in Safari/Chrome
+			$(cropzoom.$image).each(function() { this.onselectstart = function() { return false; }; });
 		};
 		
 		var createRotationSlider = function(){
