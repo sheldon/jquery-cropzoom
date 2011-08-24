@@ -137,6 +137,13 @@ THE SOFTWARE.
 				'height': cropzoom.settings.height
 			});
 			
+			cropzoom.selector_data = {
+				left : cropzoom.settings.selector.left,
+				top : cropzoom.settings.selector.top,
+				width : (cropzoom.settings.selector.maxWidth != null ? (cropzoom.settings.selector.width > cropzoom.settings.selector.maxWidth ? cropzoom.settings.selector.maxWidth : cropzoom.settings.selector.width) : cropzoom.settings.selector.width),
+				height : (cropzoom.settings.selector.maxHeight != null ? (cropzoom.settings.selector.height > cropzoom.settings.selector.maxHeight ? cropzoom.settings.selector.maxHeight : cropzoom.settings.selector.height) : cropzoom.settings.selector.height)
+			};
+			
 			cropzoom.image_data = {
 				height: cropzoom.settings.image.height,
 				width: cropzoom.settings.image.width,
@@ -148,17 +155,11 @@ THE SOFTWARE.
 				source: cropzoom.settings.image.source,
 				id: 'image_to_crop_' + cropzoom.$element.attr("id")
 			};
+			setImageContainment();
 	
 			cropzoom.image_data.scaleX = (cropzoom.settings.image.width / cropzoom.image_data.width);
 			cropzoom.image_data.scaleY = (cropzoom.settings.image.height / cropzoom.image_data.height);
 			getCorrectSizes();
-			
-			cropzoom.selector_data = {
-				left : cropzoom.settings.selector.left,
-				top : cropzoom.settings.selector.top,
-				width : (cropzoom.settings.selector.maxWidth != null ? (cropzoom.settings.selector.width > cropzoom.settings.selector.maxWidth ? cropzoom.settings.selector.maxWidth : cropzoom.settings.selector.width) : cropzoom.settings.selector.width),
-				heigt : (cropzoom.settings.selector.maxHeight != null ? (cropzoom.settings.selector.height > cropzoom.settings.selector.maxHeight ? cropzoom.settings.selector.maxHeight : cropzoom.settings.selector.height) : cropzoom.settings.selector.height)
-			};
 			
 			if($.browser.msie){
 				// Add VML includes and namespace
@@ -223,22 +224,11 @@ THE SOFTWARE.
 				drag: function(event,ui){ 
 					cropzoom.image_data.top = ui.position.top;
 					cropzoom.image_data.left = ui.position.left;
-					if(cropzoom.settings.image.snapToContainer)
-						limitBoundsToElement(ui.position, cropzoom.settings );
-					else if(cropzoom.settings.image.constrainToSelector)
-						limitBoundsToElement(ui.position, cropzoom.selector_data);
-					else
-						calculateTranslationAndRotation(cropzoom.$image, cropzoom.image_data);
+					calculateTranslationAndRotation(cropzoom.$image, cropzoom.image_data);
 					//Fire the callback
 					if(cropzoom.settings.image.onImageDrag != null)
 						cropzoom.settings.image.onImageDrag(cropzoom.$image);
 	
-				},
-				stop: function(event,ui){
-					if(cropzoom.settings.image.snapToContainer)
-						limitBoundsToElement(ui.position, cropzoom.settings );
-					else if(cropzoom.settings.image.constrainToSelector)
-						limitBoundsToElement(ui.position, cropzoom.selector_data);
 				}
 			});
 	
@@ -327,8 +317,7 @@ THE SOFTWARE.
 				cropzoom.settings.selector.onChange(cropzoom.getSettings());
 				
 			// constrainToSelector option restraining zoom
-			if(cropzoom.settings.image.constrainToSelector)
-				constrainImageToSelector();
+			setImageContainment();
 		};
 		
 		//Restore the Plugin
@@ -387,7 +376,7 @@ THE SOFTWARE.
 				options.left = cropzoom.selector_data.left;
 				options.top = cropzoom.selector_data.top;
 				
-			} else if(options.match_element == "canvas" && options.match_method == "contain"){
+			} else if(options.match_element == "container" && options.match_method == "contain"){
 				if(cropzoom.image_data.width > cropzoom.settings.width || cropzoom.image_data.height > cropzoom.settings.height){
 					options.height = cropzoom.settings.height;
 					options.width = cropzoom.settings.width;
@@ -399,8 +388,8 @@ THE SOFTWARE.
 				options.left = 0;
 				options.top = 0;
 				
-			} else if(options.match_element == "canvas") {
-				// match the canvas area
+			} else if(options.match_element == "container") {
+				// match the container area
 				options.height = cropzoom.settings.height;
 				options.width = cropzoom.settings.width;
 				options.left = 0;
@@ -414,7 +403,7 @@ THE SOFTWARE.
 				options.left = cropzoom.image_data.left + (cropzoom.image_data.width - cropzoom.settings.image.width);
 				options.top = cropzoom.image_data.top + (cropzoom.image_data.height - cropzoom.settings.image.height);
 				
-			// image height and width is unchanged if it fits in the canvas
+			// image height and width is unchanged if it fits in the container
 			} else if(options.match_method == "contain" 
 			&& (cropzoom.image_data.width < options.width && cropzoom.image_data.height < options.height)){
 				options.height = cropzoom.image_data.height;
@@ -487,6 +476,8 @@ THE SOFTWARE.
 			}
 			if(cropzoom.settings.selector.onChange != null)
 				cropzoom.settings.selector.onChange(cropzoom.getSettings());
+				
+			setImageContainment();
 		};
 		
 		cropzoom.getSettings = function(){
@@ -587,6 +578,28 @@ THE SOFTWARE.
 			calculateTranslationAndRotation(cropzoom.$image, cropzoom.image_data);
 		};
 	
+		var setImageContainment = function(){
+			var offset = cropzoom.$element.offset();
+			if(cropzoom.settings.image.snapToContainer){
+				cropzoom.image_data.containment = [
+					offset.top,
+					offset.left,
+					offset.top + cropzoom.settings.height,
+					offset.left + cropzoom.settings.width
+				];
+				$(cropzoom.$image).draggable("option", "containment", "parent");
+			} else if(cropzoom.settings.image.constrainToSelector){
+				// + 1 accounts for the border (I think)
+				cropzoom.image_data.containment = [
+					Math.ceil(offset.left) + cropzoom.selector_data.left - (cropzoom.image_data.width - cropzoom.selector_data.width) + 1,
+					Math.ceil(offset.top) + cropzoom.selector_data.top - (cropzoom.image_data.height - cropzoom.selector_data.height) + 1,
+					Math.floor(offset.left) + cropzoom.selector_data.left + 1,
+					Math.floor(offset.top) + cropzoom.selector_data.top + 1
+				];
+				$(cropzoom.$image).draggable("option", "containment", cropzoom.image_data.containment);
+			}
+		};
+		
 		var createRotationSlider = function(){
 	
 			var rotationContainerSlider = $("<div />").addClass("cz-rotation-slider");
@@ -615,7 +628,8 @@ THE SOFTWARE.
 				min: 0,
 				max: 360,
 				step: ((cropzoom.settings.rotationSteps > 360 || cropzoom.settings.rotationSteps < 0) ? 1 : cropzoom.settings.rotationSteps),
-					slide: function(event, ui) {
+				slide: function(event, ui) {
+					// TODO: image.constrainToSelector and image.snapToContainer
 					cropzoom.image_data.rotation = (value == 360 ? Math.abs(360 - ui.value) : Math.abs(ui.value));
 					calculateTranslationAndRotation(cropzoom.$image, cropzoom.image_data); 
 					if(cropzoom.settings.image.onRotate != null)
@@ -673,9 +687,14 @@ THE SOFTWARE.
 					var zoomInPx_height =  (cropzoom.settings.image.height * Math.abs(value) / 100);
 					// constrainToSelector option restraining zoom
 					if(cropzoom.settings.image.constrainToSelector 
+					&& (zoomInPx_width < cropzoom.selector_data.width)){
+						zoomInPx_width = cropzoom.selector_data.width;
+						zoomInPx_height = cropzoom.settings.image.height / cropzoom.settings.image.width * cropzoom.selector_data.width;
+					}
+					if(cropzoom.settings.image.constrainToSelector 
 					&& (zoomInPx_width < cropzoom.selector_data.width || zoomInPx_height < cropzoom.selector_data.height)){
-						zoomInPx_width = cropzoom.image_data.width;
-						zoomInPx_height = cropzoom.image_data.height;
+						zoomInPx_height = cropzoom.selector_data.height;
+						zoomInPx_width = cropzoom.settings.image.width / cropzoom.settings.image.height * cropzoom.selector_data.height;
 					}
 					cropzoom.resizeImage({height: zoomInPx_height, width: zoomInPx_width});
 					
@@ -712,6 +731,7 @@ THE SOFTWARE.
 						var zoom_value = Math.round(100 * cropzoom.image_data.width / cropzoom.settings.image.width);
 						zoom_value = (cropzoom.settings.controls.orientation == 'vertical' ? (cropzoom.settings.image.maxZoom - zoom_value) : zoom_value);
 						$(this).slider("value", zoom_value);
+						setImageContainment();
 					}
 				},
 				change: function(event, ui){
@@ -867,29 +887,6 @@ THE SOFTWARE.
 			cropzoom.$selector.append(_infoView);
 		};
 		
-		var constrainImageToSelector = function(){			
-			var newHeight = cropzoom.image_data.height;
-			var newWidth = cropzoom.image_data.width;
-			var newX = cropzoom.image_data.left;
-			var newY = cropzoom.image_data.top;
-			if(cropzoom.image_data.height < cropzoom.selector_data.height){
-				newHeight = cropzoom.selector_data.height;
-				newWidth = (newHeight / cropzoom.image_data.height) * cropzoom.image_data.width;
-			}
-			if(cropzoom.image_data.width < cropzoom.selector_data.width){
-				newWidth = cropzoom.selector_data.width;
-				newHeight = (newWidth / cropzoom.image_data.width) * cropzoom.image_data.height;
-			}
-				
-			if(newHeight != cropzoom.image_data.height 
-			|| newWidth != cropzoom.image_data.width 
-			|| newX != cropzoom.image_data.left 
-			|| newY != cropzoom.image_data.top)
-				cropzoom.adjustImage({ height: newHeight, width: newWidth, top: newY, left: newX });
-				
-			limitBoundsToElement(cropzoom.image_data, cropzoom.selector_data);
-		};
-	
 		var createOverlay = function(){
 			var arr =['t cz-overlay', 'b cz-overlay', 'l cz-overlay', 'r cz-overlay'];
 			if(cropzoom.settings.selector.enablePassThroughBorder)
@@ -1357,4 +1354,3 @@ THE SOFTWARE.
 	};
 
 })(jQuery);
-
