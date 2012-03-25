@@ -254,7 +254,7 @@ THE SOFTWARE.
 			getData('image').scaleX = (settings.width / getData('image').w);
 			getData('image').scaleY = (settings.height / getData('image').h);
 		},
-		getCorrectSizes(){
+		getCorrectSizes: function(){
 			if (settings.image.startZoom != 0) {
 				var zoomInPx_width = ((settings.image.width * Math
 						.abs(settings.image.startZoom)) / 100);
