@@ -5,7 +5,8 @@ $viewPortW = $_POST["viewPortW"];
 $viewPortH = $_POST["viewPortH"];
 $pWidth = $_POST["imageW"];
 $pHeight =  $_POST["imageH"];
-$ext = end(explode(".",$_POST["imageSource"]));
+$sourceParts = explode(".",$_POST["imageSource"]);
+$ext = end($sourceParts);
 $function = returnCorrectFunction($ext);
 $image = $function($_POST["imageSource"]);
 $width = imagesx($image);
@@ -16,7 +17,7 @@ setTransparency($image,$image_p,$ext);
 imagecopyresampled($image_p, $image, 0, 0, 0, 0, $pWidth, $pHeight, $width, $height);
 imagedestroy($image);
 $widthR = imagesx($image_p);
-$hegihtR = imagesy($image_p);
+$heightR = imagesy($image_p);
 
 $selectorX = $_POST["selectorX"];
 $selectorY = $_POST["selectorY"];
@@ -31,10 +32,10 @@ if($_POST["imageRotate"]){
 	//print $pWidth."---".$pHeight;
 
 	$diffW = abs($pWidth - $widthR) / 2;
-	$diffH = abs($pHeight - $hegihtR) / 2;
+	$diffH = abs($pHeight - $heightR) / 2;
 		
 	$_POST["imageX"] = ($pWidth > $widthR ? $_POST["imageX"] - $diffW : $_POST["imageX"] + $diffW);
-	$_POST["imageY"] = ($pHeight > $hegihtR ? $_POST["imageY"] - $diffH : $_POST["imageY"] + $diffH);
+	$_POST["imageY"] = ($pHeight > $heightR ? $_POST["imageY"] - $diffH : $_POST["imageY"] + $diffH);
 
 	
 }

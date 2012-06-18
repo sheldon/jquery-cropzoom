@@ -1117,7 +1117,7 @@ THE SOFTWARE.
 				w : w,
 				h : h
 			});
-			console.log(getData('selector'));
+			console.log(_self.data('selector'));
 			
 		},
 		// Restore the Plugin
